@@ -1,0 +1,274 @@
+{
+  "files": [
+    "C:\\Users\\udaudaykiran\\Downloads\\udaudaykiran-Use-Case-1\\data\\landing\\stores.csv",
+    "C:\\Users\\udaudaykiran\\Downloads\\udaudaykiran-Use-Case-1\\data\\landing\\sales_data.csv",
+    "C:\\Users\\udaudaykiran\\Downloads\\udaudaykiran-Use-Case-1\\data\\landing\\products.csv"
+  ],
+  "datasets": {
+    "stores": {
+      "file": "C:\\Users\\udaudaykiran\\Downloads\\udaudaykiran-Use-Case-1\\data\\landing\\stores.csv",
+      "shape": {
+        "rows": 10,
+        "columns": 5
+      },
+      "columns": {
+        "store_id": {
+          "dtype": "str",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "unique_count": 10,
+          "sample_values": [
+            "S01"
+          ]
+        },
+        "store_name": {
+          "dtype": "str",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "unique_count": 10,
+          "sample_values": [
+            "Downtown Flagship"
+          ]
+        },
+        "region": {
+          "dtype": "str",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "unique_count": 4,
+          "sample_values": [
+            "Northeast"
+          ]
+        },
+        "city": {
+          "dtype": "str",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "unique_count": 10,
+          "sample_values": [
+            "New York"
+          ]
+        },
+        "state": {
+          "dtype": "str",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "unique_count": 9,
+          "sample_values": [
+            "NY"
+          ]
+        }
+      }
+    },
+    "sales_data": {
+      "file": "C:\\Users\\udaudaykiran\\Downloads\\udaudaykiran-Use-Case-1\\data\\landing\\sales_data.csv",
+      "shape": {
+        "rows": 186,
+        "columns": 11
+      },
+      "columns": {
+        "transaction_id": {
+          "dtype": "str",
+          "null_count": 8,
+          "null_pct": 4.3,
+          "unique_count": 166,
+          "sample_values": [
+            "TXN10046"
+          ]
+        },
+        "transaction_date": {
+          "dtype": "str",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "unique_count": 116,
+          "sample_values": [
+            "01/15/2024"
+          ]
+        },
+        "store_id": {
+          "dtype": "str",
+          "null_count": 5,
+          "null_pct": 2.69,
+          "unique_count": 10,
+          "sample_values": [
+            "S09"
+          ]
+        },
+        "product_id": {
+          "dtype": "str",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "unique_count": 20,
+          "sample_values": [
+            "P001"
+          ]
+        },
+        "product_name": {
+          "dtype": "str",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "unique_count": 20,
+          "sample_values": [
+            "iPhone 15"
+          ]
+        },
+        "category": {
+          "dtype": "str",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "unique_count": 21,
+          "sample_values": [
+            "Electronics"
+          ]
+        },
+        "quantity": {
+          "dtype": "int64",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "unique_count": 11,
+          "min": -4.0,
+          "max": 8.0,
+          "mean": 3.9408602150537635
+        },
+        "unit_price": {
+          "dtype": "float64",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "unique_count": 172,
+          "min": 0.01,
+          "max": 9999.99,
+          "mean": 356.27005376344084
+        },
+        "total_amount": {
+          "dtype": "float64",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "unique_count": 172,
+          "min": -1230.56,
+          "max": 9999.99,
+          "mean": 1215.24311827957
+        },
+        "customer_segment": {
+          "dtype": "str",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "unique_count": 16,
+          "sample_values": [
+            "Loyal"
+          ]
+        },
+        "payment_method": {
+          "dtype": "str",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "unique_count": 4,
+          "sample_values": [
+            "Apple Pay"
+          ]
+        }
+      }
+    },
+    "products": {
+      "file": "C:\\Users\\udaudaykiran\\Downloads\\udaudaykiran-Use-Case-1\\data\\landing\\products.csv",
+      "shape": {
+        "rows": 20,
+        "columns": 4
+      },
+      "columns": {
+        "product_id": {
+          "dtype": "str",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "unique_count": 20,
+          "sample_values": [
+            "P001"
+          ]
+        },
+        "product_name": {
+          "dtype": "str",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "unique_count": 20,
+          "sample_values": [
+            "iPhone 15"
+          ]
+        },
+        "category": {
+          "dtype": "str",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "unique_count": 5,
+          "sample_values": [
+            "Electronics"
+          ]
+        },
+        "standard_price": {
+          "dtype": "float64",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "unique_count": 19,
+          "min": 12.99,
+          "max": 999.99,
+          "mean": 259.2405
+        }
+      }
+    }
+  },
+  "analysis": {
+    "semantic_meanings": {
+      "stores": {
+        "store_id": "unique identifier for each retail location",
+        "store_name": "descriptive name of the store",
+        "region": "geographic region grouping stores",
+        "city": "city where the store is located",
+        "state": "state where the store is located"
+      },
+      "sales_data": {
+        "transaction_id": "unique identifier for each sales transaction",
+        "transaction_date": "date (and possibly time) of the sale",
+        "store_id": "foreign key linking to stores.store_id",
+        "product_id": "foreign key linking to products.product_id",
+        "product_name": "name of the product sold (redundant with products table)",
+        "category": "product category (redundant with products table)",
+        "quantity": "number of units sold (positive for sales, negative for returns)",
+        "unit_price": "price per unit at time of transaction",
+        "total_amount": "quantity * unit_price (may be negative for returns)",
+        "customer_segment": "segment of the customer (e.g., Consumer, Corporate)",
+        "payment_method": "method used to pay (e.g., Credit Card, Cash)"
+      },
+      "products": {
+        "product_id": "unique identifier for each product",
+        "product_name": "descriptive name of the product",
+        "category": "category the product belongs to",
+        "standard_price": "baseline price for the product"
+      }
+    },
+    "join_keys": [
+      {
+        "key": "store_id",
+        "datasets": [
+          "stores",
+          "sales_data"
+        ]
+      },
+      {
+        "key": "product_id",
+        "datasets": [
+          "products",
+          "sales_data"
+        ]
+      }
+    ],
+    "quality_notes": [
+      "stores: no missing values, all identifiers unique.",
+      "sales_data: transaction_id has 4.3% nulls and 166 unique values for 186 rows \u2013 potential duplicate or missing IDs.",
+      "sales_data: store_id has 2.69% nulls; ensure referential integrity before joining.",
+      "sales_data: quantity ranges from -4 to 8 (mean ~3.94) \u2013 negative values likely represent returns; consider flagging.",
+      "sales_data: total_amount ranges from -1230.56 to 9999.99 (mean ~1215.24) \u2013 negative totals align with negative quantities.",
+      "sales_data: unit_price and total_amount show wide range (0.01\u20119999.99); verify outliers.",
+      "products: all fields complete, product_id unique.",
+      "Redundant columns in sales_data (product_name, category) duplicate information from products; may be removed after join.",
+      "String columns have high cardinality (e.g., transaction_id, product_name) \u2013 treat as identifiers rather than categorical features."
+    ]
+  },
+  "lov_report_path": "C:\\Users\\udaudaykiran\\Downloads\\udaudaykiran-Use-Case-1\\data\\lovs\\lov_report_9d9b26db-be6c-49d3-ac89-86257c69bb4b.json"
+}

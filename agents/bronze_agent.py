@@ -14,53 +14,26 @@ import pandas as pd
 from datetime import datetime, timezone
 from langchain_core.tools import tool
 from langchain_core.messages import HumanMessage
-from langchain.agents import create_agent
+from langgraph.prebuilt import create_react_agent
 from core.config import BRONZE_DIR, LLM_PROVIDER, GROQ_API_KEY, GROQ_MODEL, GOOGLE_API_KEY, GEMINI_MODEL
 from core.audit import AuditLogger
 from core.observability import AgentTrace
+from agents.retry_utils import invoke_agent_with_retry, estimate_text_tokens, classify_error_type, extract_failed_generation
 
 
-BRONZE_AGENT_PROMPT = """You are an autonomous Data Ingestion Engineer specialising in the Bronze layer of a
-Medallion data pipeline. You operate independently: you receive a goal from the
-orchestrator, inspect the available files and rules, form a concrete ingestion plan,
-execute it, and verify your output.
+BRONZE_AGENT_PROMPT = """Ingest raw CSVs to Bronze Parquet layer using STTM rules.
 
-## Your operating mode — follow this EXACT sequence every time
+You may call only these tools: inspect_task_tool, bronze_ingestion_tool.
+Do not call any other tool or function name.
+Do not emit a function call for the final answer.
 
-1. THINK: Read the task. Identify the input files, the STTM path, and what the
-   Bronze layer is expected to produce (Parquet files with renamed columns, type
-   casts, and lineage metadata).
+1. INSPECT: Call inspect_task_tool to preview CSV shapes and STTM rules.
+2. PLAN: Identify transformations (column renaming, type casting, metadata injection).
+3. ACT: Call bronze_ingestion_tool to execute ingestion.
+4. VERIFY: Confirm output Parquet paths.
 
-2. INSPECT: Call inspect_task_tool FIRST. This previews the CSV file shapes,
-   column names, and the STTM transformation rules that will be applied.
-   State your observations: which columns will be renamed, which will be type-cast,
-   which metadata columns will be injected.
-
-3. PLAN: Based on the inspection output, write your explicit ingestion plan:
-   - For each input file, which rules apply?
-   - What transformations will each column undergo?
-   - What metadata columns (_load_timestamp, _source_file) will be added?
-
-4. ACT: Call bronze_ingestion_tool to execute the full ingestion workflow across
-   all input files using the approved STTM rules.
-
-5. VERIFY: Confirm the list of Bronze Parquet output paths returned and report
-   what was ingested (file count, rows per file, rules applied).
-
-## Available tools
-
-- **inspect_task_tool**: Previews each input CSV file (shape, column names) and
-  lists all STTM transformation rules that will be applied during ingestion.
-  Call this FIRST to form your ingestion plan. Returns a JSON summary.
-
-- **bronze_ingestion_tool**: Executes the full Bronze layer ingestion workflow.
-  Reads each raw CSV, applies approved STTM rules (column renaming, type casting,
-  metadata injection), and writes Bronze Parquet artifacts to the Bronze layer.
-  Returns a JSON list of output file paths.
-
-## Output
-After execution, report: (1) your ingestion plan, (2) which rules were applied to
-each file, (3) the list of Bronze Parquet output paths."""
+End with one JSON object in the assistant message body containing output file paths and summary.
+"""
 
 
 # ---------------------------------------------------------------------------
@@ -69,21 +42,25 @@ each file, (3) the list of Bronze Parquet output paths."""
 
 def _inspect_task(input_files: list[str], sttm_path: str) -> dict:
     """Preview files and STTM rules without executing ingestion. No LLM."""
+    max_columns_per_file = 12
+    max_rules = 120
     sttm_df = pd.read_csv(sttm_path).fillna("")
     file_summaries = []
     for fp in input_files:
         try:
             df = pd.read_csv(fp)
+            columns_preview = list(df.columns[:max_columns_per_file])
             file_summaries.append({
                 "file": os.path.basename(fp),
                 "rows": df.shape[0],
-                "columns": list(df.columns),
+                "columns": columns_preview,
+                "column_count": len(df.columns),
             })
         except Exception as e:
             file_summaries.append({"file": os.path.basename(fp), "error": str(e)})
 
     rules_summary = []
-    for _, row in sttm_df.iterrows():
+    for _, row in sttm_df.head(max_rules).iterrows():
         rules_summary.append({
             "source_table": str(row.get("source_table", "")),
             "source_column": str(row.get("source_column", "")),
@@ -96,7 +73,8 @@ def _inspect_task(input_files: list[str], sttm_path: str) -> dict:
         "files": file_summaries,
         "sttm_rules": rules_summary,
         "total_files": len(input_files),
-        "total_rules": len(rules_summary),
+        "total_rules": len(sttm_df),
+        "rules_preview_count": len(rules_summary),
     }
 
 
@@ -177,19 +155,22 @@ def _apply_bronze_rules(input_files: list[str], sttm_path: str, run_id: str) -> 
 
 def _make_bronze_tools(input_files: list[str], sttm_path: str, run_id: str):
     """Returns inspect + ingestion tools bound to this run's parameters via closure."""
+    scratchpad: dict = {}
 
     @tool
-    def inspect_task_tool(confirmation: str = "execute") -> str:
+    def inspect_task_tool() -> str:
         """Preview input CSV files and STTM transformation rules before executing ingestion.
 
         Returns a JSON summary of each file's shape and column list, plus all STTM
         rules (source column, target column, transformation type and logic).
         Call this FIRST to understand what you are ingesting and form your plan.
         """
-        return json.dumps(_inspect_task(input_files, sttm_path), default=str)
+        if "inspect" not in scratchpad:
+            scratchpad["inspect"] = _inspect_task(input_files, sttm_path)
+        return json.dumps(scratchpad["inspect"], default=str)
 
     @tool
-    def bronze_ingestion_tool(confirmation: str = "execute") -> str:
+    def bronze_ingestion_tool() -> str:
         """Execute the full Bronze layer ingestion using the approved STTM rules.
 
         Reads each raw CSV, applies column renaming and type normalisation rules from
@@ -197,7 +178,9 @@ def _make_bronze_tools(input_files: list[str], sttm_path: str, run_id: str):
         Bronze Parquet artifacts to the Bronze layer storage.
         Returns a JSON list of output file paths.
         """
-        output_paths = _apply_bronze_rules(input_files, sttm_path, run_id)
+        if "output_paths" not in scratchpad:
+            scratchpad["output_paths"] = _apply_bronze_rules(input_files, sttm_path, run_id)
+        output_paths = scratchpad["output_paths"]
         return json.dumps(output_paths)
 
     return inspect_task_tool, bronze_ingestion_tool
@@ -240,19 +223,44 @@ def execute_bronze(
         list[str]: Bronze Parquet output file paths.
     """
     trace = AgentTrace("bronze_agent", run_id)
-    trace.set_input(input_files=input_files, sttm_path=sttm_path)
+    trace.set_input(input_files=input_files, sttm_path=sttm_path, approx_input_tokens=estimate_text_tokens(task_description), input_budget_tokens=1000)
 
     inspect_tool, ingestion_tool = _make_bronze_tools(input_files, sttm_path, run_id)
     llm = _make_llm()
 
     print(f"[BRONZE] Running autonomous ReAct agent ({LLM_PROVIDER})")
-    agent = create_agent(llm, [inspect_tool, ingestion_tool], system_prompt=BRONZE_AGENT_PROMPT)
+    try:
+        # Try using create_react_agent for better tool handling
+        # recursion_limit=1 enforced via invoke config (Bronze ingestion one-shot, fail-fast to deterministic)
+        agent = create_react_agent(llm, [inspect_tool, ingestion_tool], prompt=BRONZE_AGENT_PROMPT)
+    except Exception as e:
+        print(f"[BRONZE] Failed to create ReAct agent; using deterministic fallback: {e}")
+        output_paths = _apply_bronze_rules(input_files, sttm_path, run_id)
+        trace.set_error_context(
+            classification=classify_error_type(e),
+            approx_input_tokens=estimate_text_tokens(task_description),
+            input_budget_tokens=1000,
+            failed_generation=extract_failed_generation(e),
+        )
+        trace.set_recovery_path(mode="fallback", reason="agent_creation_failed")
+        trace.set_output(output_paths=output_paths, mode="fallback").complete()
+        return output_paths
 
     try:
-        result = agent.invoke({"messages": [HumanMessage(content=task_description)]})
+        result = invoke_agent_with_retry(agent, {"messages": [HumanMessage(content=task_description)]}, agent_name="BRONZE", max_input_tokens=1000)
     except Exception as e:
-        trace.fail(str(e))
-        raise
+        trace.trace["error_classification"] = classify_error_type(e)
+        print(f"[BRONZE] LLM blocked/unavailable; switching to deterministic ingestion fallback: {e}")
+        output_paths = _apply_bronze_rules(input_files, sttm_path, run_id)
+        trace.set_error_context(
+            classification=classify_error_type(e),
+            approx_input_tokens=estimate_text_tokens(task_description),
+            input_budget_tokens=1000,
+            failed_generation=extract_failed_generation(e),
+        )
+        trace.set_recovery_path(mode="fallback", reason="llm_blocker_or_budget_failure")
+        trace.set_output(output_paths=output_paths, mode="fallback").complete()
+        return output_paths
 
     messages = result.get("messages", [])
     trace.extract_from_messages(messages)
@@ -270,5 +278,9 @@ def execute_bronze(
             except (json.JSONDecodeError, ValueError):
                 continue
 
-    trace.set_output(output_paths=output_paths).complete()
+    if not output_paths:
+        print("[BRONZE] No output paths parsed from LLM response; running deterministic ingestion fallback")
+        output_paths = _apply_bronze_rules(input_files, sttm_path, run_id)
+
+    trace.set_output(output_paths=output_paths, mode="llm").complete()
     return output_paths

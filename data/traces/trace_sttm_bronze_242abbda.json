@@ -1,0 +1,54 @@
+[
+  {
+    "agent": "sttm_bronze",
+    "run_id": "242abbda-44ad-4136-acce-7c43473a5650",
+    "started_at": "2026-08-30T18:14:31.307754+00:00",
+    "input": {
+      "approx_input_tokens": 17,
+      "input_budget_tokens": 2000
+    },
+    "plan": "",
+    "tool_calls": [],
+    "reasoning_steps": [],
+    "output": {},
+    "duration_seconds": 0.199,
+    "status": "failed",
+    "error_classification": "tpd_hard_block",
+    "error_context": {
+      "classification": "tpd_hard_block",
+      "approx_input_tokens": 17,
+      "input_budget_tokens": 2000,
+      "failed_generation": ""
+    },
+    "error": "Error code: 429 - {'error': {'message': 'Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m19nf9c8ekzrcyazd2vq796r` service tier `on_demand` on tokens per day (TPD): Limit 200000, Used 199999, Requested 675. Please try again in 4m51.168s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'tokens', 'code': 'rate_limit_exceeded'}}"
+  },
+  {
+    "agent": "sttm_bronze",
+    "run_id": "242abbda-44ad-4136-acce-7c43473a5650",
+    "started_at": "2026-08-30T18:14:31.300228+00:00",
+    "input": {
+      "profile_path": "C:\\Users\\udaudaykiran\\Downloads\\udaudaykiran-Use-Case-1\\data\\profiles\\profile_combined_20260830_234431.json",
+      "mode": "llm_primary"
+    },
+    "plan": "",
+    "tool_calls": [],
+    "reasoning_steps": [],
+    "output": {
+      "sttm_path": "C:\\Users\\udaudaykiran\\Downloads\\udaudaykiran-Use-Case-1\\data\\sttm\\sttm_bronze_242abbda-44ad-4136-acce-7c43473a5650.csv",
+      "row_count": 26,
+      "mode": "fallback"
+    },
+    "duration_seconds": 0.219,
+    "status": "success",
+    "error_context": {
+      "classification": "tpd_hard_block",
+      "approx_input_tokens": 17,
+      "input_budget_tokens": 2000,
+      "failed_generation": ""
+    },
+    "recovery_path": {
+      "mode": "fallback",
+      "reason": "invalid_or_empty_sttm_output"
+    }
+  }
+]

@@ -1,0 +1,37 @@
+[
+  {
+    "agent": "profiler",
+    "run_id": "efda2fff-4a70-49b3-a8f4-a8bb085b37e6",
+    "started_at": "2026-08-30T18:20:59.961670+00:00",
+    "input": {
+      "file_paths": [
+        "C:\\Users\\udaudaykiran\\Downloads\\udaudaykiran-Use-Case-1\\data\\landing\\stores.csv",
+        "C:\\Users\\udaudaykiran\\Downloads\\udaudaykiran-Use-Case-1\\data\\landing\\sales_data.csv",
+        "C:\\Users\\udaudaykiran\\Downloads\\udaudaykiran-Use-Case-1\\data\\landing\\products.csv"
+      ],
+      "approx_input_tokens": 271,
+      "input_budget_tokens": 1400
+    },
+    "plan": "",
+    "tool_calls": [],
+    "reasoning_steps": [],
+    "output": {
+      "profile_path": "C:\\Users\\udaudaykiran\\Downloads\\udaudaykiran-Use-Case-1\\data\\profiles\\profile_combined_20260830_235100.json",
+      "lov_report_path": "C:\\Users\\udaudaykiran\\Downloads\\udaudaykiran-Use-Case-1\\data\\lovs\\lov_report_efda2fff-4a70-49b3-a8f4-a8bb085b37e6.json",
+      "mode": "fallback"
+    },
+    "duration_seconds": 0.315,
+    "status": "success",
+    "error_classification": "tpd_hard_block",
+    "error_context": {
+      "classification": "tpd_hard_block",
+      "approx_input_tokens": 271,
+      "input_budget_tokens": 1400,
+      "failed_generation": ""
+    },
+    "recovery_path": {
+      "mode": "deterministic_fallback",
+      "reason": "llm_blocker_or_budget_failure"
+    }
+  }
+]

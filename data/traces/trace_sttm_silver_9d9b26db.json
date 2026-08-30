@@ -1,0 +1,58 @@
+[
+  {
+    "agent": "sttm_silver",
+    "run_id": "9d9b26db-be6c-49d3-ac89-86257c69bb4b",
+    "started_at": "2026-08-30T18:01:07.841919+00:00",
+    "input": {
+      "approx_input_tokens": 355,
+      "input_budget_tokens": 2000
+    },
+    "plan": "",
+    "tool_calls": [],
+    "reasoning_steps": [],
+    "output": {},
+    "duration_seconds": 61.232,
+    "status": "failed",
+    "error_classification": "tpm_window_retry",
+    "error_context": {
+      "classification": "tpm_window_retry",
+      "approx_input_tokens": 355,
+      "input_budget_tokens": 2000,
+      "failed_generation": ""
+    },
+    "error": "Error code: 429 - {'error': {'message': 'Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m19nf9c8ekzrcyazd2vq796r` service tier `on_demand` on tokens per minute (TPM): Limit 8000, Used 5414, Requested 4916. Please try again in 17.475s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'tokens', 'code': 'rate_limit_exceeded'}}"
+  },
+  {
+    "agent": "sttm_silver",
+    "run_id": "9d9b26db-be6c-49d3-ac89-86257c69bb4b",
+    "started_at": "2026-08-30T18:01:07.833781+00:00",
+    "input": {
+      "bronze_paths": [
+        "C:\\Users\\udaudaykiran\\Downloads\\udaudaykiran-Use-Case-1\\data\\bronze_layer\\stores_bronze.parquet",
+        "C:\\Users\\udaudaykiran\\Downloads\\udaudaykiran-Use-Case-1\\data\\bronze_layer\\sales_data_bronze.parquet",
+        "C:\\Users\\udaudaykiran\\Downloads\\udaudaykiran-Use-Case-1\\data\\bronze_layer\\products_bronze.parquet"
+      ],
+      "mode": "llm_primary"
+    },
+    "plan": "",
+    "tool_calls": [],
+    "reasoning_steps": [],
+    "output": {
+      "sttm_path": "C:\\Users\\udaudaykiran\\Downloads\\udaudaykiran-Use-Case-1\\data\\sttm\\sttm_silver_9d9b26db-be6c-49d3-ac89-86257c69bb4b.csv",
+      "row_count": 29,
+      "mode": "fallback"
+    },
+    "duration_seconds": 61.279,
+    "status": "success",
+    "error_context": {
+      "classification": "tpm_window_retry",
+      "approx_input_tokens": 355,
+      "input_budget_tokens": 2000,
+      "failed_generation": ""
+    },
+    "recovery_path": {
+      "mode": "fallback",
+      "reason": "invalid_or_empty_sttm_output"
+    }
+  }
+]

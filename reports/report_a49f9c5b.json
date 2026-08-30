@@ -1,0 +1,19 @@
+{
+  "direct_answer": {
+    "question": "Get List of stores in state CA",
+    "answer": "The California stores are:\n- S09: Gateway West, Los Angeles (West)\n- S10: Bay Area Hub, San Francisco (West)",
+    "why": "",
+    "approach": "No methodology provided"
+  },
+  "charts": [
+    {
+      "type": "bar",
+      "title": "Store count per city in CA",
+      "data": {
+        "Los Angeles": 1,
+        "San Francisco": 1
+      }
+    }
+  ],
+  "detailed_analysis": "The query returned 2 rows from stores_gold where state = 'CA'. Both stores are in the West region. City distribution shows one store each in Los Angeles and San Francisco, indicating a balanced presence across these major California markets."
+}

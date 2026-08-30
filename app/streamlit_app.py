@@ -27,8 +27,10 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 import streamlit as st
 import pandas as pd
+from pathlib import Path
 from core.config import LANDING_DIR, STTM_DIR
 from core.audit import AuditLogger
+from core.quality_validator import QUALITY_DIR
 from agents.orchestrator import (
     run_until_bronze_sttm,
     run_bronze_to_silver_sttm,
@@ -190,6 +192,191 @@ def render_progress_banner(current_phase: str, state: dict | None = None, report
     st.markdown("".join(banner_parts), unsafe_allow_html=True)
 
 
+def _quality_report_path(run_id: str, layer: str) -> Path:
+    return QUALITY_DIR / f"quality_{layer}_{run_id[:8]}.json"
+
+
+def _load_layer_quality_report(run_id: str, layer: str) -> dict | None:
+    if not run_id:
+        return None
+    report_path = _quality_report_path(run_id, layer)
+    if not report_path.exists():
+        return None
+    try:
+        with open(report_path, "r", encoding="utf-8") as handle:
+            return json.load(handle)
+    except Exception:
+        return None
+
+
+def _render_layer_quality_content(report: dict | None, layer: str) -> None:
+    if not report:
+        st.info(f"{layer.title()} quality report is not available yet.")
+        return
+
+    summary = report.get("summary", {})
+    status = str(report.get("status", "unknown")).upper()
+    status_icon = "✅" if status == "PASSED" else "⚠️"
+
+    c1, c2, c3 = st.columns(3)
+    c1.metric("Status", f"{status_icon} {status}")
+    c2.metric("Files Checked", int(summary.get("file_count", 0) or 0))
+    c3.metric("Warnings", int(summary.get("total_warnings", 0) or 0))
+
+    rows: list[dict] = []
+    for file_entry in report.get("files", []):
+        file_name = Path(str(file_entry.get("file_path", ""))).name or "Unknown"
+        warnings = file_entry.get("warnings", []) or []
+        rows.append(
+            {
+                "file": file_name,
+                "rows": int(file_entry.get("row_count", 0) or 0),
+                "columns": int(file_entry.get("column_count", 0) or 0),
+                "duplicates": int(file_entry.get("duplicate_row_count", 0) or 0),
+                "warning_count": len(warnings),
+                "warning_details": " | ".join(str(w) for w in warnings) if warnings else "None",
+            }
+        )
+
+    if rows:
+        st.dataframe(pd.DataFrame(rows), width="stretch", hide_index=True)
+
+
+def _render_layer_quality_popovers(run_id: str) -> None:
+    pop1, pop2, pop3 = st.columns(3)
+    with pop1:
+        with st.popover("Bronze DQ Results", width="stretch"):
+            _render_layer_quality_content(_load_layer_quality_report(run_id, "bronze"), "bronze")
+    with pop2:
+        with st.popover("Silver DQ Results", width="stretch"):
+            _render_layer_quality_content(_load_layer_quality_report(run_id, "silver"), "silver")
+    with pop3:
+        with st.popover("Gold DQ Results", width="stretch"):
+            _render_layer_quality_content(_load_layer_quality_report(run_id, "gold"), "gold")
+
+
+def _render_artifact_download(label: str, file_path: str, key: str) -> None:
+    if not file_path:
+        return
+    path = Path(file_path)
+    if not path.exists():
+        return
+
+    suffix = path.suffix.lower()
+    mime = "text/plain"
+    if suffix == ".csv":
+        mime = "text/csv"
+    elif suffix == ".json":
+        mime = "application/json"
+    elif suffix == ".html":
+        mime = "text/html"
+    elif suffix == ".parquet":
+        mime = "application/octet-stream"
+
+    with open(path, "rb") as handle:
+        st.download_button(
+            label=label,
+            data=handle.read(),
+            file_name=path.name,
+            mime=mime,
+            width="stretch",
+            key=key,
+        )
+
+
+def _render_artifacts_panel(state: dict | None, phase: str) -> None:
+    if not state:
+        return
+    run_id = state.get("run_id", "")
+    if not run_id:
+        return
+
+    with st.expander("Artifacts Generated So Far", expanded=True):
+        st.caption(f"Run ID: {run_id[:8]}")
+
+        st.markdown("**STTM Artifacts**")
+        sttm_col1, sttm_col2, sttm_col3 = st.columns(3)
+        with sttm_col1:
+            _render_artifact_download(
+                "Download Bronze STTM",
+                state.get("sttm_bronze_path", ""),
+                f"{phase}_download_bronze_sttm",
+            )
+        with sttm_col2:
+            _render_artifact_download(
+                "Download Silver STTM",
+                state.get("sttm_silver_path", ""),
+                f"{phase}_download_silver_sttm",
+            )
+        with sttm_col3:
+            _render_artifact_download(
+                "Download Gold STTM",
+                state.get("sttm_gold_path", ""),
+                f"{phase}_download_gold_sttm",
+            )
+
+        st.markdown("**Layer Outputs**")
+        output_cols = st.columns(3)
+        layer_map = [
+            ("bronze_output_paths", "Bronze"),
+            ("silver_output_paths", "Silver"),
+            ("gold_output_paths", "Gold"),
+        ]
+        for idx, (state_key, layer_name) in enumerate(layer_map):
+            paths = state.get(state_key, []) or []
+            with output_cols[idx]:
+                if paths:
+                    st.write(f"{layer_name} outputs: {len(paths)}")
+                    for file_index, item in enumerate(paths):
+                        _render_artifact_download(
+                            f"{layer_name} File {file_index + 1}",
+                            item,
+                            f"{phase}_{state_key}_{file_index}",
+                        )
+                else:
+                    st.write(f"{layer_name} outputs: not generated yet")
+
+        _render_artifact_download(
+            "Download Final Report",
+            state.get("report_path", ""),
+            f"{phase}_download_report",
+        )
+
+
+def _is_fallback_mode_active(state: dict | None) -> bool:
+    if not state:
+        return False
+    if state.get("status") == "fallback_report_ready":
+        return True
+
+    for entry in _current_audit_logs():
+        action = str(entry.get("action", "")).lower()
+        if "fallback" in action:
+            return True
+    return False
+
+
+def _render_fallback_banner(state: dict | None) -> None:
+    if not _is_fallback_mode_active(state):
+        return
+    st.markdown(
+        """
+        <div style="
+            border: 1px solid rgba(245, 158, 11, 0.55);
+            background: linear-gradient(135deg, rgba(120, 53, 15, 0.35) 0%, rgba(146, 64, 14, 0.2) 100%);
+            border-radius: 12px;
+            padding: 0.8rem 1rem;
+            margin-bottom: 1rem;
+            color: #fef3c7;
+            font-weight: 600;
+        ">
+            Fallback Mode Active: LLM-primary execution hit a blocker for at least one phase. Deterministic fallback completed processing to keep all artifacts available.
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
 def _reset_analysis_session() -> None:
     st.session_state.phase = "upload"
     st.session_state.pipeline_state = None
@@ -199,6 +386,21 @@ def _reset_analysis_session() -> None:
 def _prepare_sttm_editor_df(df: pd.DataFrame) -> pd.DataFrame:
     # Add default approvals so reviewers can uncheck only rules they want to reject.
     editor_df = df.copy()
+
+    text_columns = [
+        "source_schema",
+        "source_table",
+        "source_column",
+        "target_schema",
+        "target_table",
+        "target_column",
+        "transformation_type",
+        "transformation_logic",
+    ]
+    for column in text_columns:
+        if column in editor_df.columns:
+            editor_df[column] = editor_df[column].fillna("").astype(str)
+
     if SELECTION_COL not in editor_df.columns:
         editor_df.insert(0, SELECTION_COL, True)
     editor_df[SELECTION_COL] = editor_df[SELECTION_COL].fillna(True).astype(bool)
@@ -385,7 +587,7 @@ def render_audit_trail_panel() -> None:
         data=json.dumps(logs, indent=2),
         file_name=f"audit_{run_id}.json",
         mime="application/json",
-        use_container_width=True,
+        width="stretch",
     )
 
 st.title("Intent-Driven Agentic Medallion Workflow")
@@ -416,6 +618,11 @@ with audit_col:
     render_audit_trail_panel()
 
 with main_col:
+    _render_fallback_banner(st.session_state.pipeline_state)
+    _render_artifacts_panel(st.session_state.pipeline_state, st.session_state.phase)
+    if st.session_state.current_run_id:
+        _render_layer_quality_popovers(st.session_state.current_run_id)
+
     # ========== PHASE 1: UPLOAD & INTENT ==========
     if st.session_state.phase == "upload":
         st.header("📤 Phase 1: Upload Data & Define Intent")
@@ -455,6 +662,11 @@ with main_col:
                     st.session_state.pipeline_state = result
                     st.session_state.current_run_id = result.get("run_id", "")
                     if result.get("error"):
+                        report_path = result.get("report_path", "")
+                        if report_path and Path(report_path).exists():
+                            st.warning("Rate limit reached. A fallback report was generated for download.")
+                            st.session_state.phase = "report"
+                            st.rerun()
                         st.error(f"❌ Error: {result['error']}")
                     else:
                         st.session_state.phase = "bronze_sttm"
@@ -482,7 +694,7 @@ with main_col:
             # Editable STTM table
             edited_df = st.data_editor(
                 editor_df,
-                use_container_width=True,
+                width="stretch",
                 num_rows="fixed",
                 hide_index=True,
                 column_config={
@@ -498,7 +710,7 @@ with main_col:
             if selected_df.empty:
                 st.warning("Select at least one row to continue.")
 
-            if st.button("✅ Approve & Continue", type="primary", use_container_width=True, disabled=selected_df.empty):
+            if st.button("✅ Approve & Continue", type="primary", width="stretch", disabled=selected_df.empty):
                 # Save edited STTM
                 selected_df.to_csv(sttm_path, index=False)
 
@@ -508,6 +720,11 @@ with main_col:
                     st.session_state.pipeline_state = result
                     st.session_state.current_run_id = result.get("run_id", st.session_state.current_run_id)
                     if result.get("error"):
+                        report_path = result.get("report_path", "")
+                        if report_path and Path(report_path).exists():
+                            st.warning("Rate limit reached. A fallback report was generated for download.")
+                            st.session_state.phase = "report"
+                            st.rerun()
                         st.error(f"❌ Error: {result['error']}")
                     else:
                         st.session_state.phase = "silver_sttm"
@@ -532,7 +749,7 @@ with main_col:
 
             edited_df = st.data_editor(
                 editor_df,
-                use_container_width=True,
+                width="stretch",
                 num_rows="fixed",
                 hide_index=True,
                 column_config={
@@ -548,7 +765,7 @@ with main_col:
             if selected_df.empty:
                 st.warning("Select at least one row to continue.")
 
-            if st.button("✅ Approve & Continue", type="primary", use_container_width=True, disabled=selected_df.empty):
+            if st.button("✅ Approve & Continue", type="primary", width="stretch", disabled=selected_df.empty):
                 selected_df.to_csv(sttm_path, index=False)
 
                 with st.spinner("⚙️ Executing Silver layer and generating Gold STTM..."):
@@ -557,6 +774,11 @@ with main_col:
                     st.session_state.pipeline_state = result
                     st.session_state.current_run_id = result.get("run_id", st.session_state.current_run_id)
                     if result.get("error"):
+                        report_path = result.get("report_path", "")
+                        if report_path and Path(report_path).exists():
+                            st.warning("Rate limit reached. A fallback report was generated for download.")
+                            st.session_state.phase = "report"
+                            st.rerun()
                         st.error(f"❌ Error: {result['error']}")
                     else:
                         st.session_state.phase = "gold_sttm"
@@ -581,7 +803,7 @@ with main_col:
 
             edited_df = st.data_editor(
                 editor_df,
-                use_container_width=True,
+                width="stretch",
                 num_rows="fixed",
                 hide_index=True,
                 column_config={
@@ -597,7 +819,7 @@ with main_col:
             if selected_df.empty:
                 st.warning("Select at least one row to continue.")
 
-            if st.button("✅ Approve & Execute", type="primary", use_container_width=True, disabled=selected_df.empty):
+            if st.button("✅ Approve & Execute", type="primary", width="stretch", disabled=selected_df.empty):
                 selected_df.to_csv(sttm_path, index=False)
 
                 with st.spinner("⚙️ Executing Gold layer and generating report..."):
@@ -606,6 +828,11 @@ with main_col:
                     st.session_state.pipeline_state = result
                     st.session_state.current_run_id = result.get("run_id", st.session_state.current_run_id)
                     if result.get("error"):
+                        report_path = result.get("report_path", "")
+                        if report_path and Path(report_path).exists():
+                            st.warning("Rate limit reached. A fallback report was generated for download.")
+                            st.session_state.phase = "report"
+                            st.rerun()
                         st.error(f"❌ Error: {result['error']}")
                     else:
                         st.session_state.phase = "report"
@@ -623,9 +850,8 @@ with main_col:
         report_path = state.get("report_path", "")
         if report_path and Path(report_path).exists():
             # Render final artifact inline so users can inspect narrative + evidence before download.
-            with open(report_path, "r", encoding="utf-8") as f:
-                report_html = f.read()
-            st.components.v1.html(report_html, height=2000, scrolling=True)
+            html_file=Path(report_path)
+            st.iframe(html_file, height=2000)
 
             col1, col2 = st.columns([1, 1])
             with col1:

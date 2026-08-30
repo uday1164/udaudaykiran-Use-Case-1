@@ -16,15 +16,16 @@ GOLD_DIR = DATA_DIR / "gold_layer"
 REPORTS_DIR = BASE_DIR / "reports"
 AUDIT_DIR = BASE_DIR / "audit_logs"
 CHROMA_DIR = BASE_DIR / ".chroma"
+LOVS_DIR = DATA_DIR / "lovs"
 
 # LLM Configuration
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
-GEMINI_MODEL = "gemini-2.5-flash"
+GEMINI_MODEL = "gemini-2.0-flash"
 EMBEDDING_MODEL = "models/text-embedding-004"
 
 # Groq Configuration (preferred - higher free tier limits)
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
-GROQ_MODEL = "llama-3.3-70b-versatile"  # Currently supported Groq model
+GROQ_MODEL = "openai/gpt-oss-120b"  # Currently supported Groq model
 
 # Use Groq if available, else fall back to Gemini
 _env_llm = os.getenv("LLM_PROVIDER", "").strip().lower()
@@ -34,5 +35,5 @@ else:
     LLM_PROVIDER = "groq" if GROQ_API_KEY else "gemini"
 
 # Ensure directories exist
-for d in [LANDING_DIR, PROFILES_DIR, STTM_DIR, BRONZE_DIR, SILVER_DIR, GOLD_DIR, REPORTS_DIR, AUDIT_DIR, CHROMA_DIR]:
+for d in [LANDING_DIR, PROFILES_DIR, STTM_DIR, BRONZE_DIR, SILVER_DIR, GOLD_DIR, REPORTS_DIR, AUDIT_DIR, CHROMA_DIR, LOVS_DIR]:
     d.mkdir(parents=True, exist_ok=True)

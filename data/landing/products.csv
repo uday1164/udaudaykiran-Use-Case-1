@@ -1,0 +1,21 @@
+product_id,product_name,category,standard_price
+P001,iPhone 15,Electronics,999.99
+P002,Samsung Galaxy S24,Electronics,849.99
+P003,AirPods Pro,Electronics,249.99
+P004,Sony WH-1000XM5,Electronics,349.99
+P005,Levi's 501 Jeans,Apparel,69.99
+P006,Nike Air Max,Apparel,119.99
+P007,Patagonia Fleece,Apparel,149.99
+P008,Champion Hoodie,Apparel,49.99
+P009,Instant Pot Duo,Home & Kitchen,89.99
+P010,KitchenAid Mixer,Home & Kitchen,349.99
+P011,Vitamix Blender,Home & Kitchen,449.99
+P012,Nespresso Machine,Home & Kitchen,199.99
+P013,Peloton Mat,Sports,39.99
+P014,TRX Resistance Bands,Sports,59.99
+P015,Bowflex Dumbbells,Sports,299.99
+P016,CamelBak Water Bottle,Sports,29.99
+P017,CeraVe Moisturizer,Beauty,16.99
+P018,Dyson Airwrap,Beauty,599.99
+P019,La Mer Cream,Beauty,195.0
+P020,Neutrogena SPF 50,Beauty,12.99

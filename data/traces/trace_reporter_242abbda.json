@@ -1,0 +1,47 @@
+[
+  {
+    "agent": "reporter",
+    "run_id": "242abbda-44ad-4136-acce-7c43473a5650",
+    "started_at": "2026-08-30T18:14:46.973328+00:00",
+    "input": {
+      "gold_files": [
+        "C:\\Users\\udaudaykiran\\Downloads\\udaudaykiran-Use-Case-1\\data\\gold_layer\\products_gold.parquet",
+        "C:\\Users\\udaudaykiran\\Downloads\\udaudaykiran-Use-Case-1\\data\\gold_layer\\sales_data_gold.parquet",
+        "C:\\Users\\udaudaykiran\\Downloads\\udaudaykiran-Use-Case-1\\data\\gold_layer\\stores_gold.parquet"
+      ],
+      "business_intent": "Get store name which has sold most products",
+      "approx_input_tokens": 116,
+      "input_budget_tokens": 1300
+    },
+    "plan": "",
+    "tool_calls": [],
+    "reasoning_steps": [],
+    "output": {
+      "report_path": "C:\\Users\\udaudaykiran\\Downloads\\udaudaykiran-Use-Case-1\\reports\\report_242abbda.html",
+      "mode": "deterministic_fallback",
+      "fallback_reason": "llm_blocker_error",
+      "normalization_stats": {
+        "analysis_was_dict": true,
+        "direct_answer_was_dict": true,
+        "direct_answer_was_string": false,
+        "invalid_chart_specs_dropped": 0,
+        "charts_input_count": 0,
+        "charts_output_count": 0,
+        "detailed_analysis_was_string": true
+      }
+    },
+    "duration_seconds": 0.906,
+    "status": "success",
+    "error_classification": "tpd_hard_block",
+    "error_context": {
+      "classification": "tpd_hard_block",
+      "approx_input_tokens": 116,
+      "input_budget_tokens": 1300,
+      "failed_generation": ""
+    },
+    "recovery_path": {
+      "mode": "deterministic_fallback",
+      "reason": "llm_blocker_error"
+    }
+  }
+]

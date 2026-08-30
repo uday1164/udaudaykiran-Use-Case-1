@@ -1,0 +1,10 @@
+source_schema,source_table,source_column,target_schema,target_table,target_column,transformation_type,transformation_logic
+silver,,,gold,gold_fallback,pk_gold_id,Indirect,Auto-generated sequential surrogate primary key starting from 1
+silver,stores_silver,pk_stores_bronze_silver_id,gold,stores_gold,pk_stores_bronze_silver_id,Direct,Direct pass-through from Silver to Gold fallback view
+silver,stores_silver,store_id,gold,stores_gold,store_id,Direct,Direct pass-through from Silver to Gold fallback view
+silver,stores_silver,store_name,gold,stores_gold,store_name,Direct,Direct pass-through from Silver to Gold fallback view
+silver,stores_silver,region,gold,stores_gold,region,Direct,Direct pass-through from Silver to Gold fallback view
+silver,stores_silver,city,gold,stores_gold,city,Direct,Direct pass-through from Silver to Gold fallback view
+silver,stores_silver,state,gold,stores_gold,state,Direct,Direct pass-through from Silver to Gold fallback view
+silver,stores_silver,_load_timestamp,gold,stores_gold,_load_timestamp,Direct,Direct pass-through from Silver to Gold fallback view
+silver,stores_silver,_source_file,gold,stores_gold,_source_file,Direct,Direct pass-through from Silver to Gold fallback view

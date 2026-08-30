@@ -1,0 +1,11 @@
+store_id,store_name,region,city,state
+S01,Downtown Flagship,Northeast,New York,NY
+S02,Westfield Mall,Northeast,Boston,MA
+S03,Harbor View,Northeast,Philadelphia,PA
+S04,Peach Tree Center,Southeast,Atlanta,GA
+S05,Bayfront Store,Southeast,Miami,FL
+S06,Magnolia Square,Southeast,Charlotte,NC
+S07,Windy City Center,Midwest,Chicago,IL
+S08,Motor City Plaza,Midwest,Detroit,MI
+S09,Gateway West,West,Los Angeles,CA
+S10,Bay Area Hub,West,San Francisco,CA

@@ -1,0 +1,35 @@
+[
+  {
+    "agent": "profiler",
+    "run_id": "70fd7909-9b2d-4fb0-9c66-6ab7a523ea61",
+    "started_at": "2026-08-30T18:09:50.433780+00:00",
+    "input": {
+      "file_paths": [
+        "C:\\Users\\udaudaykiran\\Downloads\\udaudaykiran-Use-Case-1\\data\\landing\\stores.csv"
+      ],
+      "approx_input_tokens": 207,
+      "input_budget_tokens": 1400
+    },
+    "plan": "",
+    "tool_calls": [],
+    "reasoning_steps": [],
+    "output": {
+      "profile_path": "C:\\Users\\udaudaykiran\\Downloads\\udaudaykiran-Use-Case-1\\data\\profiles\\profile_combined_20260830_233952.json",
+      "lov_report_path": "C:\\Users\\udaudaykiran\\Downloads\\udaudaykiran-Use-Case-1\\data\\lovs\\lov_report_70fd7909-9b2d-4fb0-9c66-6ab7a523ea61.json",
+      "mode": "fallback"
+    },
+    "duration_seconds": 1.628,
+    "status": "success",
+    "error_classification": "tpd_hard_block",
+    "error_context": {
+      "classification": "tpd_hard_block",
+      "approx_input_tokens": 207,
+      "input_budget_tokens": 1400,
+      "failed_generation": ""
+    },
+    "recovery_path": {
+      "mode": "deterministic_fallback",
+      "reason": "llm_blocker_or_budget_failure"
+    }
+  }
+]

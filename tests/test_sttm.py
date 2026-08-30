@@ -12,6 +12,7 @@ from agents.sttm_generator import (
     _prepare_silver_context,
     _prepare_gold_context,
     _extract_sttm_rows,
+    _build_sttm_task_with_budget,
     generate_bronze_sttm,
     generate_silver_sttm,
     generate_gold_sttm,
@@ -39,10 +40,10 @@ GOLD_ROW = {
 
 
 def _mock_agent(sttm_rows: list[dict], context_tool=None):
-    """Return a fake create_agent that optionally calls the context tool then returns STTM rows."""
+    """Return a fake create_react_agent that optionally calls the context tool then returns STTM rows."""
     def fake_create_agent(llm, tools, **kwargs):
         mock_agent = MagicMock()
-        def invoke(inputs):
+        def invoke(inputs, config=None):
             messages = []
             if context_tool is not None:
                 tool_result = context_tool.invoke({})
@@ -146,6 +147,15 @@ class TestExtractSttmRows:
         assert rows == [BRONZE_ROW]
 
 
+class TestSttmTaskCompaction:
+    def test_build_sttm_task_with_budget_truncates(self):
+        long_task = "Generate STTM with complete mappings and cleansing rules. " * 80
+        compact = _build_sttm_task_with_budget(long_task, max_input_tokens=60)
+
+        assert len(compact) <= 60 * 4
+        assert compact
+
+
 # ---------------------------------------------------------------------------
 # generate_bronze_sttm
 # ---------------------------------------------------------------------------
@@ -155,12 +165,14 @@ class TestGenerateBronzeSttm:
         p = tmp_path / "profile.json"
         p.write_text(json.dumps(profile))
 
-        with patch("agents.sttm_generator.create_agent", side_effect=_mock_agent([BRONZE_ROW])), \
+        expected_path = tmp_path / "sttm_bronze_run-b1.csv"
+        pd.DataFrame([BRONZE_ROW]).to_csv(expected_path, index=False)
+
+        with patch("agents.sttm_generator._run_sttm_agent", return_value=str(expected_path)), \
              patch("agents.sttm_generator.STTM_DIR", tmp_path), \
              patch("agents.sttm_generator.AuditLogger"):
             path = generate_bronze_sttm(
-                str(p), "Analyse sales", "run-b1",
-                task_description="Generate Bronze STTM for run-b1.",
+                str(p), "run-b1", "Generate Bronze STTM for run-b1.",
             )
 
         assert Path(path).exists()
@@ -176,18 +188,17 @@ class TestGenerateBronzeSttm:
         captured = {}
 
         def fake_create_agent(llm, tools, **kwargs):
-            captured["system_prompt"] = kwargs.get("system_prompt", "")
+            captured["prompt"] = kwargs.get("prompt", "")
             mock_agent = MagicMock()
             mock_agent.invoke.return_value = {"messages": [MagicMock(content=json.dumps([BRONZE_ROW]))]}
             return mock_agent
 
-        with patch("agents.sttm_generator.create_agent", side_effect=fake_create_agent), \
+        with patch("agents.sttm_generator.create_react_agent", side_effect=fake_create_agent), \
              patch("agents.sttm_generator.STTM_DIR", tmp_path), \
              patch("agents.sttm_generator.AuditLogger"):
-            generate_bronze_sttm(str(p), "intent", "run-b2",
-                                  task_description="Generate Bronze STTM.")
+            generate_bronze_sttm(str(p), "run-b2", "Generate Bronze STTM.")
 
-        assert "Bronze" in captured["system_prompt"]
+        assert "Bronze" in captured["prompt"]
 
 
 # ---------------------------------------------------------------------------
@@ -201,12 +212,14 @@ class TestGenerateSilverSttm:
         sttm_csv = tmp_path / "bronze_sttm.csv"
         pd.DataFrame({"target_column": ["id", "val"]}).to_csv(str(sttm_csv), index=False)
 
-        with patch("agents.sttm_generator.create_agent", side_effect=_mock_agent([SILVER_ROW])), \
+        expected_path = tmp_path / "sttm_silver_run-s1.csv"
+        pd.DataFrame([SILVER_ROW]).to_csv(expected_path, index=False)
+
+        with patch("agents.sttm_generator._run_sttm_agent", return_value=str(expected_path)), \
              patch("agents.sttm_generator.STTM_DIR", tmp_path), \
              patch("agents.sttm_generator.AuditLogger"):
             path = generate_silver_sttm(
-                [str(parquet)], str(sttm_csv), "intent", "run-s1",
-                task_description="Generate Silver STTM for run-s1.",
+                [str(parquet)], str(sttm_csv), "run-s1", "Generate Silver STTM for run-s1.",
             )
 
         assert Path(path).exists()
@@ -225,12 +238,14 @@ class TestGenerateGoldSttm:
         sttm_csv = tmp_path / "silver_sttm.csv"
         pd.DataFrame({"target_column": ["revenue", "region"]}).to_csv(str(sttm_csv), index=False)
 
-        with patch("agents.sttm_generator.create_agent", side_effect=_mock_agent([GOLD_ROW])), \
+        expected_path = tmp_path / "sttm_gold_run-g1.csv"
+        pd.DataFrame([GOLD_ROW]).to_csv(expected_path, index=False)
+
+        with patch("agents.sttm_generator._run_sttm_agent", return_value=str(expected_path)), \
              patch("agents.sttm_generator.STTM_DIR", tmp_path), \
              patch("agents.sttm_generator.AuditLogger"):
             path = generate_gold_sttm(
-                [str(parquet)], str(sttm_csv), "intent", "run-g1",
-                task_description="Generate Gold STTM for run-g1.",
+                [str(parquet)], str(sttm_csv), "intent", "run-g1", "Generate Gold STTM for run-g1.",
             )
 
         assert Path(path).exists()

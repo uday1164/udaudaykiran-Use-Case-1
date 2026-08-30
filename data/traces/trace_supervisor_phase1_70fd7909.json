@@ -1,0 +1,31 @@
+[
+  {
+    "agent": "supervisor_phase1",
+    "run_id": "70fd7909-9b2d-4fb0-9c66-6ab7a523ea61",
+    "started_at": "2026-08-30T18:09:48.982479+00:00",
+    "input": {
+      "phase": "phase1",
+      "goal": "Phase 1 goal for run_id='70fd7909-9b2d-4fb0-9c66-6ab7a523ea61'. Uploaded files: ['C:\\\\Users\\\\udaudaykiran\\\\Downloads\\\\udaudaykiran-Use-Case-1\\\\data\\\\landing\\\\stores.csv'] You need to accomplish two things in this phase: 1. Profile the uploaded raw CSV files to understand their structure, column semantics, data quality, and potential join keys across datasets. 2. Use that profile to generate a complete Bronze STTM CSV that covers every column with ingestion rules (renaming, type casting, metadata injection). Bronze is intent-agnostic \u2014 map every column mechanically. Plan which tools to call and in what order. Verify each output before proceeding.",
+      "tools_available": [
+        "profiler_agent_tool",
+        "sttm_agent_tool"
+      ],
+      "approx_input_tokens": 163,
+      "input_budget_tokens": 1800
+    },
+    "plan": "",
+    "tool_calls": [],
+    "reasoning_steps": [],
+    "output": {},
+    "duration_seconds": 3.17,
+    "status": "failed",
+    "error_classification": "tpd_hard_block",
+    "error_context": {
+      "classification": "tpd_hard_block",
+      "approx_input_tokens": 163,
+      "input_budget_tokens": 1800,
+      "failed_generation": ""
+    },
+    "error": "Error code: 429 - {'error': {'message': 'Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m19nf9c8ekzrcyazd2vq796r` service tier `on_demand` on tokens per day (TPD): Limit 200000, Used 199773, Requested 792. Please try again in 4m4.079999999s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'tokens', 'code': 'rate_limit_exceeded'}}"
+  }
+]

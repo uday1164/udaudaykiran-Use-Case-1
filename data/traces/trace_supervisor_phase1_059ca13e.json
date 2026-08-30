@@ -1,0 +1,31 @@
+[
+  {
+    "agent": "supervisor_phase1",
+    "run_id": "059ca13e-447a-496e-a7a4-27206c60d3dc",
+    "started_at": "2026-08-30T18:24:02.472021+00:00",
+    "input": {
+      "phase": "phase1",
+      "goal": "Phase 1 goal for run_id='059ca13e-447a-496e-a7a4-27206c60d3dc'. Uploaded files: ['C:\\\\Users\\\\udaudaykiran\\\\Downloads\\\\udaudaykiran-Use-Case-1\\\\data\\\\landing\\\\stores.csv', 'C:\\\\Users\\\\udaudaykiran\\\\Downloads\\\\udaudaykiran-Use-Case-1\\\\data\\\\landing\\\\sales_data.csv', 'C:\\\\Users\\\\udaudaykiran\\\\Downloads\\\\udaudaykiran-Use-Case-1\\\\data\\\\landing\\\\products.csv'] You need to accomplish two things in this phase: 1. Profile the uploaded raw CSV files to understand their structure, column semantics, data quality, and potential join keys across datasets. 2. Use that profile to generate a complete Bronze STTM CSV that covers every column with ingestion rules (renaming, type casting, metadata injection). Bronze is intent-agnostic \u2014 map every column mechanically. Plan which tools to call and in what order. Verify each output before proceeding.",
+      "tools_available": [
+        "profiler_agent_tool",
+        "sttm_agent_tool"
+      ],
+      "approx_input_tokens": 209,
+      "input_budget_tokens": 1800
+    },
+    "plan": "",
+    "tool_calls": [],
+    "reasoning_steps": [],
+    "output": {},
+    "duration_seconds": 0.205,
+    "status": "failed",
+    "error_classification": "tpd_hard_block",
+    "error_context": {
+      "classification": "tpd_hard_block",
+      "approx_input_tokens": 209,
+      "input_budget_tokens": 1800,
+      "failed_generation": ""
+    },
+    "error": "Error code: 429 - {'error': {'message': 'Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m19nf9c8ekzrcyazd2vq796r` service tier `on_demand` on tokens per day (TPD): Limit 200000, Used 199578, Requested 718. Please try again in 2m7.872s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'tokens', 'code': 'rate_limit_exceeded'}}"
+  }
+]

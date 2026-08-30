@@ -1,0 +1,27 @@
+source_schema,source_table,source_column,target_schema,target_table,target_column,transformation_type,transformation_logic
+raw,stores,store_id,bronze,stores_bronze,store_id,Direct,Direct pass-through from source to Bronze layer
+raw,stores,store_name,bronze,stores_bronze,store_name,Direct,Direct pass-through from source to Bronze layer
+raw,stores,region,bronze,stores_bronze,region,Direct,Direct pass-through from source to Bronze layer
+raw,stores,city,bronze,stores_bronze,city,Direct,Direct pass-through from source to Bronze layer
+raw,stores,state,bronze,stores_bronze,state,Direct,Direct pass-through from source to Bronze layer
+raw,stores,,bronze,stores_bronze,_load_timestamp,Indirect,Current UTC timestamp injected at load time
+raw,stores,,bronze,stores_bronze,_source_file,Indirect,Source file path injected at load time
+raw,sales_data,transaction_id,bronze,sales_data_bronze,transaction_id,Direct,Direct pass-through from source to Bronze layer
+raw,sales_data,transaction_date,bronze,sales_data_bronze,transaction_date,Direct,Direct pass-through from source to Bronze layer
+raw,sales_data,store_id,bronze,sales_data_bronze,store_id,Direct,Direct pass-through from source to Bronze layer
+raw,sales_data,product_id,bronze,sales_data_bronze,product_id,Direct,Direct pass-through from source to Bronze layer
+raw,sales_data,product_name,bronze,sales_data_bronze,product_name,Direct,Direct pass-through from source to Bronze layer
+raw,sales_data,category,bronze,sales_data_bronze,category,Direct,Direct pass-through from source to Bronze layer
+raw,sales_data,quantity,bronze,sales_data_bronze,quantity,Direct,Direct pass-through; preserve integer type
+raw,sales_data,unit_price,bronze,sales_data_bronze,unit_price,Direct,Direct pass-through; preserve numeric type
+raw,sales_data,total_amount,bronze,sales_data_bronze,total_amount,Direct,Direct pass-through; preserve numeric type
+raw,sales_data,customer_segment,bronze,sales_data_bronze,customer_segment,Direct,Direct pass-through from source to Bronze layer
+raw,sales_data,payment_method,bronze,sales_data_bronze,payment_method,Direct,Direct pass-through from source to Bronze layer
+raw,sales_data,,bronze,sales_data_bronze,_load_timestamp,Indirect,Current UTC timestamp injected at load time
+raw,sales_data,,bronze,sales_data_bronze,_source_file,Indirect,Source file path injected at load time
+raw,products,product_id,bronze,products_bronze,product_id,Direct,Direct pass-through from source to Bronze layer
+raw,products,product_name,bronze,products_bronze,product_name,Direct,Direct pass-through from source to Bronze layer
+raw,products,category,bronze,products_bronze,category,Direct,Direct pass-through from source to Bronze layer
+raw,products,standard_price,bronze,products_bronze,standard_price,Direct,Direct pass-through; preserve numeric type
+raw,products,,bronze,products_bronze,_load_timestamp,Indirect,Current UTC timestamp injected at load time
+raw,products,,bronze,products_bronze,_source_file,Indirect,Source file path injected at load time

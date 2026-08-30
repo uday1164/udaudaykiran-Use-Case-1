@@ -1,0 +1,59 @@
+[
+  {
+    "agent": "sttm_gold",
+    "run_id": "0ec88e6e-259f-4a29-80e0-daeca8ff36f2",
+    "started_at": "2026-08-30T18:25:48.128834+00:00",
+    "input": {
+      "approx_input_tokens": 17,
+      "input_budget_tokens": 2000
+    },
+    "plan": "",
+    "tool_calls": [],
+    "reasoning_steps": [],
+    "output": {},
+    "duration_seconds": 0.201,
+    "status": "failed",
+    "error_classification": "tpd_hard_block",
+    "error_context": {
+      "classification": "tpd_hard_block",
+      "approx_input_tokens": 17,
+      "input_budget_tokens": 2000,
+      "failed_generation": ""
+    },
+    "error": "Error code: 429 - {'error': {'message': 'Rate limit reached for model `openai/gpt-oss-120b` in organization `org_01m19nf9c8ekzrcyazd2vq796r` service tier `on_demand` on tokens per day (TPD): Limit 200000, Used 199771, Requested 709. Please try again in 3m27.36s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'tokens', 'code': 'rate_limit_exceeded'}}"
+  },
+  {
+    "agent": "sttm_gold",
+    "run_id": "0ec88e6e-259f-4a29-80e0-daeca8ff36f2",
+    "started_at": "2026-08-30T18:25:48.122022+00:00",
+    "input": {
+      "silver_paths": [
+        "C:\\Users\\udaudaykiran\\Downloads\\udaudaykiran-Use-Case-1\\data\\silver_layer\\stores_silver.parquet",
+        "C:\\Users\\udaudaykiran\\Downloads\\udaudaykiran-Use-Case-1\\data\\silver_layer\\sales_data_silver.parquet",
+        "C:\\Users\\udaudaykiran\\Downloads\\udaudaykiran-Use-Case-1\\data\\silver_layer\\products_silver.parquet"
+      ],
+      "business_intent": "Get the name of store which has sold most products",
+      "mode": "llm_primary"
+    },
+    "plan": "",
+    "tool_calls": [],
+    "reasoning_steps": [],
+    "output": {
+      "sttm_path": "C:\\Users\\udaudaykiran\\Downloads\\udaudaykiran-Use-Case-1\\data\\sttm\\sttm_gold_0ec88e6e-259f-4a29-80e0-daeca8ff36f2.csv",
+      "row_count": 30,
+      "mode": "fallback"
+    },
+    "duration_seconds": 0.277,
+    "status": "success",
+    "error_context": {
+      "classification": "tpd_hard_block",
+      "approx_input_tokens": 17,
+      "input_budget_tokens": 2000,
+      "failed_generation": ""
+    },
+    "recovery_path": {
+      "mode": "fallback",
+      "reason": "llm_exception"
+    }
+  }
+]

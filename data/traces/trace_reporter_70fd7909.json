@@ -1,0 +1,45 @@
+[
+  {
+    "agent": "reporter",
+    "run_id": "70fd7909-9b2d-4fb0-9c66-6ab7a523ea61",
+    "started_at": "2026-08-30T18:10:09.759820+00:00",
+    "input": {
+      "gold_files": [
+        "C:\\Users\\udaudaykiran\\Downloads\\udaudaykiran-Use-Case-1\\data\\gold_layer\\stores_gold.parquet"
+      ],
+      "business_intent": "Get List of stores\n",
+      "approx_input_tokens": 98,
+      "input_budget_tokens": 1300
+    },
+    "plan": "",
+    "tool_calls": [],
+    "reasoning_steps": [],
+    "output": {
+      "report_path": "C:\\Users\\udaudaykiran\\Downloads\\udaudaykiran-Use-Case-1\\reports\\report_70fd7909.html",
+      "mode": "deterministic_fallback",
+      "fallback_reason": "llm_blocker_error",
+      "normalization_stats": {
+        "analysis_was_dict": true,
+        "direct_answer_was_dict": true,
+        "direct_answer_was_string": false,
+        "invalid_chart_specs_dropped": 0,
+        "charts_input_count": 0,
+        "charts_output_count": 0,
+        "detailed_analysis_was_string": true
+      }
+    },
+    "duration_seconds": 1.076,
+    "status": "success",
+    "error_classification": "tpd_hard_block",
+    "error_context": {
+      "classification": "tpd_hard_block",
+      "approx_input_tokens": 98,
+      "input_budget_tokens": 1300,
+      "failed_generation": ""
+    },
+    "recovery_path": {
+      "mode": "deterministic_fallback",
+      "reason": "llm_blocker_error"
+    }
+  }
+]

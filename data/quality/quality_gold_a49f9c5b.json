@@ -1,0 +1,58 @@
+{
+    "run_id": "a49f9c5b-832b-4479-b726-234bce1d5abe",
+    "layer_name": "gold",
+    "validated_at": "2026-08-30T17:46:27.137623+00:00",
+    "warn_only": true,
+    "status": "passed",
+    "summary": {
+        "file_count": 1,
+        "files_with_warnings": 0,
+        "total_warnings": 0
+    },
+    "files": [
+        {
+            "file_path": "C:\\Users\\udaudaykiran\\Downloads\\udaudaykiran-Use-Case-1\\data\\gold_layer\\stores_gold.parquet",
+            "warnings": [],
+            "row_count": 10,
+            "column_count": 9,
+            "columns": [
+                "pk_gold_id",
+                "pk_stores_bronze_silver_id",
+                "store_id",
+                "store_name",
+                "region",
+                "city",
+                "state",
+                "_load_timestamp",
+                "_source_file"
+            ],
+            "dtypes": {
+                "pk_gold_id": "int64",
+                "pk_stores_bronze_silver_id": "int64",
+                "store_id": "str",
+                "store_name": "str",
+                "region": "str",
+                "city": "str",
+                "state": "str",
+                "_load_timestamp": "datetime64[us, UTC]",
+                "_source_file": "str"
+            },
+            "null_pct_by_column": {
+                "pk_gold_id": 0.0,
+                "pk_stores_bronze_silver_id": 0.0,
+                "store_id": 0.0,
+                "store_name": 0.0,
+                "region": 0.0,
+                "city": 0.0,
+                "state": 0.0,
+                "_load_timestamp": 0.0,
+                "_source_file": 0.0
+            },
+            "duplicate_row_count": 0,
+            "is_empty": false,
+            "missing_expected_columns": [],
+            "unexpected_columns": []
+        }
+    ],
+    "report_path": ""
+}

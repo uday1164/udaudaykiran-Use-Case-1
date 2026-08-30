@@ -1,0 +1,41 @@
+[
+  {
+    "agent": "silver_agent",
+    "run_id": "cd56b19f-9cd1-45ac-beef-29e31a14add7",
+    "started_at": "2026-08-30T18:31:41.708579+00:00",
+    "input": {
+      "input_files": [
+        "C:\\Users\\udaudaykiran\\Downloads\\udaudaykiran-Use-Case-1\\data\\bronze_layer\\stores_bronze.parquet",
+        "C:\\Users\\udaudaykiran\\Downloads\\udaudaykiran-Use-Case-1\\data\\bronze_layer\\sales_data_bronze.parquet",
+        "C:\\Users\\udaudaykiran\\Downloads\\udaudaykiran-Use-Case-1\\data\\bronze_layer\\products_bronze.parquet"
+      ],
+      "sttm_path": "C:\\Users\\udaudaykiran\\Downloads\\udaudaykiran-Use-Case-1\\data\\sttm\\sttm_silver_cd56b19f-9cd1-45ac-beef-29e31a14add7.csv",
+      "approx_input_tokens": 16,
+      "input_budget_tokens": 1000
+    },
+    "plan": "",
+    "tool_calls": [],
+    "reasoning_steps": [],
+    "output": {
+      "output_paths": [
+        "C:\\Users\\udaudaykiran\\Downloads\\udaudaykiran-Use-Case-1\\data\\silver_layer\\stores_silver.parquet",
+        "C:\\Users\\udaudaykiran\\Downloads\\udaudaykiran-Use-Case-1\\data\\silver_layer\\sales_data_silver.parquet",
+        "C:\\Users\\udaudaykiran\\Downloads\\udaudaykiran-Use-Case-1\\data\\silver_layer\\products_silver.parquet"
+      ],
+      "mode": "fallback"
+    },
+    "duration_seconds": 0.561,
+    "status": "success",
+    "error_classification": "tpd_hard_block",
+    "error_context": {
+      "classification": "tpd_hard_block",
+      "approx_input_tokens": 16,
+      "input_budget_tokens": 1000,
+      "failed_generation": ""
+    },
+    "recovery_path": {
+      "mode": "fallback",
+      "reason": "llm_blocker_or_budget_failure"
+    }
+  }
+]

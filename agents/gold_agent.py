@@ -13,54 +13,26 @@ import json
 import pandas as pd
 from langchain_core.tools import tool
 from langchain_core.messages import HumanMessage
-from langchain.agents import create_agent
+from langgraph.prebuilt import create_react_agent
 from core.config import GOLD_DIR, LLM_PROVIDER, GROQ_API_KEY, GROQ_MODEL, GOOGLE_API_KEY, GEMINI_MODEL
 from core.audit import AuditLogger
 from core.observability import AgentTrace
+from agents.retry_utils import invoke_agent_with_retry, estimate_text_tokens, classify_error_type, extract_failed_generation
 
 
-GOLD_AGENT_PROMPT = """You are an autonomous Analytics Engineer specialising in the Gold layer of a
-Medallion data pipeline. You operate independently: you receive a goal from the
-orchestrator, inspect the Silver Parquet inputs and Gold STTM rules, form a
-concrete materialisation plan, execute it, and verify your output.
+GOLD_AGENT_PROMPT = """Materialize Silver Parquet to Gold analytics layer using STTM rules.
 
-## Your operating mode — follow this EXACT sequence every time
+You may call only these tools: inspect_task_tool, gold_ingestion_tool.
+Do not call any other tool or function name.
+Do not emit a function call for the final answer.
 
-1. THINK: Read the task. Identify the Silver Parquet input files, the STTM path,
-   the business intent, and what Gold target tables need to be materialised.
+1. INSPECT: Call inspect_task_tool to preview Silver Parquet schemas and STTM rules.
+2. PLAN: Identify transformations (joins, renames, aggregations, surrogate keys).
+3. ACT: Call gold_ingestion_tool to execute materialization.
+4. VERIFY: Confirm output Parquet paths.
 
-2. INSPECT: Call inspect_task_tool FIRST. This previews each Silver Parquet
-   file's schema and lists all Gold STTM materialisation rules grouped by target table.
-   State your observations: which source tables need to be joined, which columns
-   will be renamed or aggregated, and how many Gold target tables will be produced.
-
-3. PLAN: Based on the inspection output, write your explicit materialisation plan:
-   - Which Gold target tables will be created?
-   - Which Silver source tables feed each Gold table?
-   - What joins, renames, and aggregations will be applied?
-   - What surrogate key will be injected?
-
-4. ACT: Call gold_ingestion_tool to execute the full materialisation workflow
-   across all Silver inputs using the approved STTM rules.
-
-5. VERIFY: Confirm the list of Gold Parquet output paths returned and report
-   what was materialised (table count, rows per table, joins performed).
-
-## Available tools
-
-- **inspect_task_tool**: Previews each Silver Parquet input file (schema, column
-  names, dtypes, row count, sample values) and lists all Gold STTM materialisation
-  rules grouped by target table. Call this FIRST to form your plan. Returns a JSON summary.
-
-- **gold_ingestion_tool**: Executes the full Gold layer materialisation workflow.
-  Loads Silver Parquet files as source tables, groups STTM rules by target table,
-  applies joins/merges across sources, executes renames and aggregations, injects
-  surrogate keys, and writes Gold Parquet artifacts.
-  Returns a JSON list of output file paths.
-
-## Output
-After execution, report: (1) your materialisation plan, (2) which joins and
-transformations were applied per Gold table, (3) the list of Gold Parquet output paths."""
+End with one JSON object in the assistant message body containing output file paths and summary.
+"""
 
 
 # ---------------------------------------------------------------------------
@@ -69,22 +41,25 @@ transformations were applied per Gold table, (3) the list of Gold Parquet output
 
 def _inspect_task(input_files: list[str], sttm_path: str) -> dict:
     """Preview Silver Parquet schemas and Gold STTM materialisation rules. No LLM."""
+    max_columns_per_file = 12
+    max_rules_per_target = 40
     sttm_df = pd.read_csv(sttm_path).fillna("")
     file_summaries = []
     for fp in input_files:
         try:
             df = pd.read_parquet(fp)
             col_info = {}
-            for col in df.columns:
+            for col in df.columns[:max_columns_per_file]:
                 col_info[col] = {
                     "dtype": str(df[col].dtype),
                     "null_count": int(df[col].isnull().sum()),
-                    "sample_values": df[col].dropna().head(3).tolist(),
+                    "sample_values": df[col].dropna().head(1).tolist(),
                 }
             file_summaries.append({
                 "file": os.path.basename(fp),
                 "rows": df.shape[0],
-                "columns": list(df.columns),
+                "columns": list(df.columns[:max_columns_per_file]),
+                "column_count": len(df.columns),
                 "column_info": col_info,
             })
         except Exception as e:
@@ -96,6 +71,8 @@ def _inspect_task(input_files: list[str], sttm_path: str) -> dict:
         target = str(row.get("target_table", "unknown")).strip()
         if target not in rules_by_target:
             rules_by_target[target] = []
+        if len(rules_by_target[target]) >= max_rules_per_target:
+            continue
         rules_by_target[target].append({
             "source_table": str(row.get("source_table", "")),
             "source_column": str(row.get("source_column", "")),
@@ -111,6 +88,7 @@ def _inspect_task(input_files: list[str], sttm_path: str) -> dict:
         "total_files": len(input_files),
         "total_target_tables": len(rules_by_target),
         "total_rules": len(sttm_df),
+        "rules_preview_per_target": max_rules_per_target,
     }
 
 
@@ -263,9 +241,10 @@ def _make_gold_tools(
     input_files: list[str], sttm_path: str, run_id: str
 ):
     """Returns inspect + ingestion tools bound to this run's parameters via closure."""
+    scratchpad: dict = {}
 
     @tool
-    def inspect_task_tool(confirmation: str = "execute") -> str:
+    def inspect_task_tool() -> str:
         """Preview Silver Parquet input schemas and Gold STTM materialisation rules.
 
         Returns a JSON summary of each Silver file's column names, dtypes, null counts,
@@ -273,10 +252,12 @@ def _make_gold_tools(
         which sources feed each table and what transformations are required.
         Call this FIRST to understand what needs to be materialised and form your plan.
         """
-        return json.dumps(_inspect_task(input_files, sttm_path), default=str)
+        if "inspect" not in scratchpad:
+            scratchpad["inspect"] = _inspect_task(input_files, sttm_path)
+        return json.dumps(scratchpad["inspect"], default=str)
 
     @tool
-    def gold_ingestion_tool(confirmation: str = "execute") -> str:
+    def gold_ingestion_tool() -> str:
         """Execute the full Gold layer materialisation using the approved STTM rules.
 
         Loads Silver Parquet files as source tables, groups STTM rules by target table,
@@ -284,7 +265,9 @@ def _make_gold_tools(
         surrogate keys (pk_gold_id), and writes Gold Parquet artifacts.
         Returns a JSON list of output file paths.
         """
-        output_paths = _apply_gold_rules(input_files, sttm_path, run_id)
+        if "output_paths" not in scratchpad:
+            scratchpad["output_paths"] = _apply_gold_rules(input_files, sttm_path, run_id)
+        output_paths = scratchpad["output_paths"]
         return json.dumps(output_paths)
 
     return inspect_task_tool, gold_ingestion_tool
@@ -329,19 +312,44 @@ def execute_gold(
         list[str]: Gold Parquet output file paths.
     """
     trace = AgentTrace("gold_agent", run_id)
-    trace.set_input(input_files=input_files, sttm_path=sttm_path)
+    trace.set_input(input_files=input_files, sttm_path=sttm_path, approx_input_tokens=estimate_text_tokens(task_description), input_budget_tokens=1200)
 
     inspect_tool, ingestion_tool = _make_gold_tools(input_files, sttm_path, run_id)
     llm = _make_llm()
 
     print(f"[GOLD] Running autonomous ReAct agent ({LLM_PROVIDER})")
-    agent = create_agent(llm, [inspect_tool, ingestion_tool], system_prompt=GOLD_AGENT_PROMPT)
+    try:
+        # Try using create_react_agent for better tool handling
+        # recursion_limit=1 enforced via invoke config (Gold materialisation one-shot, fail-fast to deterministic)
+        agent = create_react_agent(llm, [inspect_tool, ingestion_tool], prompt=GOLD_AGENT_PROMPT)
+    except Exception as e:
+        print(f"[GOLD] Failed to create ReAct agent; using deterministic fallback: {e}")
+        output_paths = _apply_gold_rules(input_files, sttm_path, run_id)
+        trace.set_error_context(
+            classification=classify_error_type(e),
+            approx_input_tokens=estimate_text_tokens(task_description),
+            input_budget_tokens=1200,
+            failed_generation=extract_failed_generation(e),
+        )
+        trace.set_recovery_path(mode="fallback", reason="agent_creation_failed")
+        trace.set_output(output_paths=output_paths, mode="fallback").complete()
+        return output_paths
 
     try:
-        result = agent.invoke({"messages": [HumanMessage(content=task_description)]})
+        result = invoke_agent_with_retry(agent, {"messages": [HumanMessage(content=task_description)]}, agent_name="GOLD", max_input_tokens=1200)
     except Exception as e:
-        trace.fail(str(e))
-        raise
+        trace.trace["error_classification"] = classify_error_type(e)
+        print(f"[GOLD] LLM blocked/unavailable; switching to deterministic materialisation fallback: {e}")
+        output_paths = _apply_gold_rules(input_files, sttm_path, run_id)
+        trace.set_error_context(
+            classification=classify_error_type(e),
+            approx_input_tokens=estimate_text_tokens(task_description),
+            input_budget_tokens=1200,
+            failed_generation=extract_failed_generation(e),
+        )
+        trace.set_recovery_path(mode="fallback", reason="llm_blocker_or_budget_failure")
+        trace.set_output(output_paths=output_paths, mode="fallback").complete()
+        return output_paths
 
     messages = result.get("messages", [])
     trace.extract_from_messages(messages)
@@ -358,5 +366,9 @@ def execute_gold(
             except (json.JSONDecodeError, ValueError):
                 continue
 
-    trace.set_output(output_paths=output_paths).complete()
+    if not output_paths:
+        print("[GOLD] No output paths parsed from LLM response; running deterministic materialisation fallback")
+        output_paths = _apply_gold_rules(input_files, sttm_path, run_id)
+
+    trace.set_output(output_paths=output_paths, mode="llm").complete()
     return output_paths

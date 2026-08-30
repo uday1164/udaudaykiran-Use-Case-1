@@ -1,0 +1,37 @@
+[
+  {
+    "agent": "silver_agent",
+    "run_id": "70fd7909-9b2d-4fb0-9c66-6ab7a523ea61",
+    "started_at": "2026-08-30T18:10:04.888168+00:00",
+    "input": {
+      "input_files": [
+        "C:\\Users\\udaudaykiran\\Downloads\\udaudaykiran-Use-Case-1\\data\\bronze_layer\\stores_bronze.parquet"
+      ],
+      "sttm_path": "C:\\Users\\udaudaykiran\\Downloads\\udaudaykiran-Use-Case-1\\data\\sttm\\sttm_silver_70fd7909-9b2d-4fb0-9c66-6ab7a523ea61.csv",
+      "approx_input_tokens": 16,
+      "input_budget_tokens": 1000
+    },
+    "plan": "",
+    "tool_calls": [],
+    "reasoning_steps": [],
+    "output": {
+      "output_paths": [
+        "C:\\Users\\udaudaykiran\\Downloads\\udaudaykiran-Use-Case-1\\data\\silver_layer\\stores_silver.parquet"
+      ],
+      "mode": "fallback"
+    },
+    "duration_seconds": 0.237,
+    "status": "success",
+    "error_classification": "tpd_hard_block",
+    "error_context": {
+      "classification": "tpd_hard_block",
+      "approx_input_tokens": 16,
+      "input_budget_tokens": 1000,
+      "failed_generation": ""
+    },
+    "recovery_path": {
+      "mode": "fallback",
+      "reason": "llm_blocker_or_budget_failure"
+    }
+  }
+]

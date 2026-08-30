@@ -1,0 +1,56 @@
+[
+  {
+    "agent": "sttm_silver",
+    "run_id": "a49f9c5b-832b-4479-b726-234bce1d5abe",
+    "started_at": "2026-08-30T17:42:16.971595+00:00",
+    "input": {
+      "approx_input_tokens": 240,
+      "input_budget_tokens": 2000
+    },
+    "plan": "",
+    "tool_calls": [],
+    "reasoning_steps": [],
+    "output": {},
+    "duration_seconds": 51.759,
+    "status": "failed",
+    "error_classification": "tool_schema_hard_block",
+    "error_context": {
+      "classification": "tool_schema_hard_block",
+      "approx_input_tokens": 240,
+      "input_budget_tokens": 2000,
+      "failed_generation": "{\"name\": \"json\", \"arguments\": {\\n  \"sttm_path\": \"C:\\\\\\\\Users\\\\\\\\udaud1...... ... ... ... ...\",\\n  \"row_count\": 8\\n}}"
+    },
+    "error": "Error code: 400 - {'error': {'message': \"Tool call validation failed: tool call validation failed: attempted to call tool 'json' which was not in request.tools\", 'type': 'invalid_request_error', 'code': 'tool_use_failed', 'failed_generation': '{\"name\": \"json\", \"arguments\": {\\n  \"sttm_path\": \"C:\\\\\\\\Users\\\\\\\\udaud1...... ... ... ... ...\",\\n  \"row_count\": 8\\n}}'}}"
+  },
+  {
+    "agent": "sttm_silver",
+    "run_id": "a49f9c5b-832b-4479-b726-234bce1d5abe",
+    "started_at": "2026-08-30T17:42:16.962765+00:00",
+    "input": {
+      "bronze_paths": [
+        "C:\\Users\\udaudaykiran\\Downloads\\udaudaykiran-Use-Case-1\\data\\bronze_layer\\stores_bronze.parquet"
+      ],
+      "mode": "llm_primary"
+    },
+    "plan": "",
+    "tool_calls": [],
+    "reasoning_steps": [],
+    "output": {
+      "sttm_path": "C:\\Users\\udaudaykiran\\Downloads\\udaudaykiran-Use-Case-1\\data\\sttm\\sttm_silver_a49f9c5b-832b-4479-b726-234bce1d5abe.csv",
+      "row_count": 8,
+      "mode": "fallback"
+    },
+    "duration_seconds": 51.789,
+    "status": "success",
+    "error_context": {
+      "classification": "tool_schema_hard_block",
+      "approx_input_tokens": 240,
+      "input_budget_tokens": 2000,
+      "failed_generation": "{\"name\": \"json\", \"arguments\": {\\n  \"sttm_path\": \"C:\\\\\\\\Users\\\\\\\\udaud1...... ... ... ... ...\",\\n  \"row_count\": 8\\n}}"
+    },
+    "recovery_path": {
+      "mode": "fallback",
+      "reason": "invalid_or_empty_sttm_output"
+    }
+  }
+]

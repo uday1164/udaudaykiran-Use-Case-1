@@ -1,0 +1,17 @@
+{
+  "direct_answer": {
+    "question": "Get total products sold by store \"Downtown Flagship\"",
+    "answer": "Deterministic intent analysis completed using sales_data_gold.parquet. Top segment: S10 with value 52,921.40.",
+    "why": "LLM was unavailable, so deterministic intent parsing and aggregation were used.",
+    "approach": "Selected Gold table by intent-column token overlap, inferred aggregation intent ('sum'), then executed deterministic aggregation by store_id."
+  },
+  "charts": [
+    {
+      "type": "bar",
+      "title": "Sum by store_id",
+      "x_column": "store_id",
+      "y_column": "value"
+    }
+  ],
+  "detailed_analysis": "This answer was generated in deterministic mode. If business phrasing is complex, the result is a best-effort interpretation based on metric and grouping keywords."
+}

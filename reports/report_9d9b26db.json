@@ -1,0 +1,10 @@
+{
+  "direct_answer": {
+    "question": "Get stores which sold most products",
+    "answer": "Deterministic intent analysis completed using products_gold.parquet. Computed value: 210.00.",
+    "why": "LLM was unavailable, so deterministic intent parsing and aggregation were used.",
+    "approach": "Selected Gold table by intent-column token overlap, inferred aggregation intent ('sum'), then executed deterministic aggregation."
+  },
+  "charts": [],
+  "detailed_analysis": "This answer was generated in deterministic mode. If business phrasing is complex, the result is a best-effort interpretation based on metric and grouping keywords."
+}

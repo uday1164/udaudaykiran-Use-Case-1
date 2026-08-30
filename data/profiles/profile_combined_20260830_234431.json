@@ -1,0 +1,266 @@
+{
+  "files": [
+    "C:\\Users\\udaudaykiran\\Downloads\\udaudaykiran-Use-Case-1\\data\\landing\\stores.csv",
+    "C:\\Users\\udaudaykiran\\Downloads\\udaudaykiran-Use-Case-1\\data\\landing\\sales_data.csv",
+    "C:\\Users\\udaudaykiran\\Downloads\\udaudaykiran-Use-Case-1\\data\\landing\\products.csv"
+  ],
+  "datasets": {
+    "stores": {
+      "file": "C:\\Users\\udaudaykiran\\Downloads\\udaudaykiran-Use-Case-1\\data\\landing\\stores.csv",
+      "shape": {
+        "rows": 10,
+        "columns": 5
+      },
+      "columns": {
+        "store_id": {
+          "dtype": "str",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "unique_count": 10,
+          "sample_values": [
+            "S01"
+          ]
+        },
+        "store_name": {
+          "dtype": "str",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "unique_count": 10,
+          "sample_values": [
+            "Downtown Flagship"
+          ]
+        },
+        "region": {
+          "dtype": "str",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "unique_count": 4,
+          "sample_values": [
+            "Northeast"
+          ]
+        },
+        "city": {
+          "dtype": "str",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "unique_count": 10,
+          "sample_values": [
+            "New York"
+          ]
+        },
+        "state": {
+          "dtype": "str",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "unique_count": 9,
+          "sample_values": [
+            "NY"
+          ]
+        }
+      }
+    },
+    "sales_data": {
+      "file": "C:\\Users\\udaudaykiran\\Downloads\\udaudaykiran-Use-Case-1\\data\\landing\\sales_data.csv",
+      "shape": {
+        "rows": 186,
+        "columns": 11
+      },
+      "columns": {
+        "transaction_id": {
+          "dtype": "str",
+          "null_count": 8,
+          "null_pct": 4.3,
+          "unique_count": 166,
+          "sample_values": [
+            "TXN10046"
+          ]
+        },
+        "transaction_date": {
+          "dtype": "str",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "unique_count": 116,
+          "sample_values": [
+            "01/15/2024"
+          ]
+        },
+        "store_id": {
+          "dtype": "str",
+          "null_count": 5,
+          "null_pct": 2.69,
+          "unique_count": 10,
+          "sample_values": [
+            "S09"
+          ]
+        },
+        "product_id": {
+          "dtype": "str",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "unique_count": 20,
+          "sample_values": [
+            "P001"
+          ]
+        },
+        "product_name": {
+          "dtype": "str",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "unique_count": 20,
+          "sample_values": [
+            "iPhone 15"
+          ]
+        },
+        "category": {
+          "dtype": "str",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "unique_count": 21,
+          "sample_values": [
+            "Electronics"
+          ]
+        },
+        "quantity": {
+          "dtype": "int64",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "unique_count": 11,
+          "min": -4.0,
+          "max": 8.0,
+          "mean": 3.9408602150537635
+        },
+        "unit_price": {
+          "dtype": "float64",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "unique_count": 172,
+          "min": 0.01,
+          "max": 9999.99,
+          "mean": 356.27005376344084
+        },
+        "total_amount": {
+          "dtype": "float64",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "unique_count": 172,
+          "min": -1230.56,
+          "max": 9999.99,
+          "mean": 1215.24311827957
+        },
+        "customer_segment": {
+          "dtype": "str",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "unique_count": 16,
+          "sample_values": [
+            "Loyal"
+          ]
+        },
+        "payment_method": {
+          "dtype": "str",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "unique_count": 4,
+          "sample_values": [
+            "Apple Pay"
+          ]
+        }
+      }
+    },
+    "products": {
+      "file": "C:\\Users\\udaudaykiran\\Downloads\\udaudaykiran-Use-Case-1\\data\\landing\\products.csv",
+      "shape": {
+        "rows": 20,
+        "columns": 4
+      },
+      "columns": {
+        "product_id": {
+          "dtype": "str",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "unique_count": 20,
+          "sample_values": [
+            "P001"
+          ]
+        },
+        "product_name": {
+          "dtype": "str",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "unique_count": 20,
+          "sample_values": [
+            "iPhone 15"
+          ]
+        },
+        "category": {
+          "dtype": "str",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "unique_count": 5,
+          "sample_values": [
+            "Electronics"
+          ]
+        },
+        "standard_price": {
+          "dtype": "float64",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "unique_count": 19,
+          "min": 12.99,
+          "max": 999.99,
+          "mean": 259.2405
+        }
+      }
+    }
+  },
+  "analysis": {
+    "semantic_meanings": {
+      "stores": {
+        "store_id": "Identifier column",
+        "store_name": "Categorical/text attribute",
+        "region": "Categorical/text attribute",
+        "city": "Categorical/text attribute",
+        "state": "Categorical/text attribute"
+      },
+      "sales_data": {
+        "transaction_id": "Identifier column",
+        "transaction_date": "Date/time column",
+        "store_id": "Identifier column",
+        "product_id": "Identifier column",
+        "product_name": "Categorical/text attribute",
+        "category": "Categorical/text attribute",
+        "quantity": "Quantity measure",
+        "unit_price": "Monetary/numeric measure",
+        "total_amount": "Monetary/numeric measure",
+        "customer_segment": "Categorical/text attribute",
+        "payment_method": "Categorical/text attribute"
+      },
+      "products": {
+        "product_id": "Identifier column",
+        "product_name": "Categorical/text attribute",
+        "category": "Categorical/text attribute",
+        "standard_price": "Monetary/numeric measure"
+      }
+    },
+    "join_keys": [
+      {
+        "left_dataset": "stores",
+        "left_column": "store_id",
+        "right_dataset": "sales_data",
+        "right_column": "store_id",
+        "confidence": "medium"
+      },
+      {
+        "left_dataset": "sales_data",
+        "left_column": "product_id",
+        "right_dataset": "products",
+        "right_column": "product_id",
+        "confidence": "medium"
+      }
+    ],
+    "quality_notes": [
+      "No major deterministic quality issues detected in profiling fallback."
+    ]
+  },
+  "lov_report_path": "C:\\Users\\udaudaykiran\\Downloads\\udaudaykiran-Use-Case-1\\data\\lovs\\lov_report_242abbda-44ad-4136-acce-7c43473a5650.json"
+}

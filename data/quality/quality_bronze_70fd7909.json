@@ -1,0 +1,52 @@
+{
+    "run_id": "70fd7909-9b2d-4fb0-9c66-6ab7a523ea61",
+    "layer_name": "bronze",
+    "validated_at": "2026-08-30T18:10:00.606219+00:00",
+    "warn_only": true,
+    "status": "passed",
+    "summary": {
+        "file_count": 1,
+        "files_with_warnings": 0,
+        "total_warnings": 0
+    },
+    "files": [
+        {
+            "file_path": "C:\\Users\\udaudaykiran\\Downloads\\udaudaykiran-Use-Case-1\\data\\bronze_layer\\stores_bronze.parquet",
+            "warnings": [],
+            "row_count": 10,
+            "column_count": 7,
+            "columns": [
+                "store_id",
+                "store_name",
+                "region",
+                "city",
+                "state",
+                "_load_timestamp",
+                "_source_file"
+            ],
+            "dtypes": {
+                "store_id": "str",
+                "store_name": "str",
+                "region": "str",
+                "city": "str",
+                "state": "str",
+                "_load_timestamp": "str",
+                "_source_file": "str"
+            },
+            "null_pct_by_column": {
+                "store_id": 0.0,
+                "store_name": 0.0,
+                "region": 0.0,
+                "city": 0.0,
+                "state": 0.0,
+                "_load_timestamp": 0.0,
+                "_source_file": 0.0
+            },
+            "duplicate_row_count": 0,
+            "is_empty": false,
+            "missing_expected_columns": [],
+            "unexpected_columns": []
+        }
+    ],
+    "report_path": ""
+}

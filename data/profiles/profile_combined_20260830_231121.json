@@ -1,0 +1,75 @@
+{
+  "files": [
+    "C:\\Users\\udaudaykiran\\Downloads\\udaudaykiran-Use-Case-1\\data\\landing\\stores.csv"
+  ],
+  "datasets": {
+    "stores": {
+      "file": "C:\\Users\\udaudaykiran\\Downloads\\udaudaykiran-Use-Case-1\\data\\landing\\stores.csv",
+      "shape": {
+        "rows": 10,
+        "columns": 5
+      },
+      "columns": {
+        "store_id": {
+          "dtype": "str",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "unique_count": 10,
+          "sample_values": [
+            "S01"
+          ]
+        },
+        "store_name": {
+          "dtype": "str",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "unique_count": 10,
+          "sample_values": [
+            "Downtown Flagship"
+          ]
+        },
+        "region": {
+          "dtype": "str",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "unique_count": 4,
+          "sample_values": [
+            "Northeast"
+          ]
+        },
+        "city": {
+          "dtype": "str",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "unique_count": 10,
+          "sample_values": [
+            "New York"
+          ]
+        },
+        "state": {
+          "dtype": "str",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "unique_count": 9,
+          "sample_values": [
+            "NY"
+          ]
+        }
+      }
+    }
+  },
+  "analysis": {
+    "semantic_meanings": {
+      "store_id": "Unique identifier for each store (primary key)",
+      "store_name": "Descriptive name of the store",
+      "region": "Geographic region grouping stores (e.g., North, South)",
+      "city": "City where the store is located",
+      "state": "State or province of the store location"
+    },
+    "join_keys": [
+      "store_id"
+    ],
+    "quality_notes": "No missing values; all columns are strings. store_id and store_name are unique across rows, indicating good primary key integrity. region, city, and state have limited distinct values, suitable for dimensional look\u2011ups. No obvious data quality issues detected."
+  },
+  "lov_report_path": "C:\\Users\\udaudaykiran\\Downloads\\udaudaykiran-Use-Case-1\\data\\lovs\\lov_report_a49f9c5b-832b-4479-b726-234bce1d5abe.json"
+}

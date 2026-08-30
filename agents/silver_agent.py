@@ -13,55 +13,26 @@ import json
 import pandas as pd
 from langchain_core.tools import tool
 from langchain_core.messages import HumanMessage
-from langchain.agents import create_agent
+from langgraph.prebuilt import create_react_agent
 from core.config import SILVER_DIR, LLM_PROVIDER, GROQ_API_KEY, GROQ_MODEL, GOOGLE_API_KEY, GEMINI_MODEL
 from core.audit import AuditLogger
 from core.observability import AgentTrace
+from agents.retry_utils import invoke_agent_with_retry, estimate_text_tokens, classify_error_type, extract_failed_generation
 
 
-SILVER_AGENT_PROMPT = """You are an autonomous Data Quality Engineer specialising in the Silver layer of a
-Medallion data pipeline. You operate independently: you receive a goal from the
-orchestrator, inspect the Bronze Parquet inputs and STTM cleansing rules, form a
-concrete cleansing plan, execute it, and verify your output.
+SILVER_AGENT_PROMPT = """Cleanse Bronze Parquet to Silver layer using STTM rules.
 
-## Your operating mode — follow this EXACT sequence every time
+You may call only these tools: inspect_task_tool, silver_ingestion_tool.
+Do not call any other tool or function name.
+Do not emit a function call for the final answer.
 
-1. THINK: Read the task. Identify the Bronze Parquet input files, the STTM path,
-   and what the Silver layer is expected to produce (cleansed Parquet files with
-   surrogate keys and standardised columns).
+1. INSPECT: Call inspect_task_tool to preview Bronze Parquet schemas and STTM rules.
+2. PLAN: Identify transformations (null handling, deduplication, type casting, standardization).
+3. ACT: Call silver_ingestion_tool to execute cleansing and inject surrogate keys.
+4. VERIFY: Confirm output Parquet paths.
 
-2. INSPECT: Call inspect_task_tool FIRST. This previews each Bronze Parquet file's
-   schema and lists all STTM cleansing rules.
-   State your observations: which columns need null handling, deduplication, type
-   casting, or date standardisation.
-
-3. PLAN: Based on the inspection output, write your explicit cleansing plan:
-   - For each file, which rules apply?
-   - How will nulls be handled per column (drop, fill mean/median/mode/constant)?
-   - Which columns will be type-cast or date-standardised?
-   - Which surrogate key will be injected as the first column?
-
-4. ACT: Call silver_ingestion_tool to execute the full cleansing workflow across
-   all Bronze input files using the approved STTM rules.
-
-5. VERIFY: Confirm the list of Silver Parquet output paths returned and report
-   what was cleansed (file count, rows per file, rules applied).
-
-## Available tools
-
-- **inspect_task_tool**: Previews each Bronze Parquet input file (schema, column
-  names, dtypes, row count, sample values) and lists all STTM cleansing rules.
-  Call this FIRST to form your cleansing plan. Returns a JSON summary.
-
-- **silver_ingestion_tool**: Executes the full Silver layer cleansing workflow.
-  Reads each Bronze Parquet, applies approved STTM rules (null handling,
-  deduplication, type casting, text normalisation), injects surrogate keys,
-  filters to approved columns, and writes Silver Parquet artifacts.
-  Returns a JSON list of output file paths.
-
-## Output
-After execution, report: (1) your cleansing plan, (2) which rules were applied to
-each file, (3) the list of Silver Parquet output paths."""
+End with one JSON object in the assistant message body containing output file paths and summary.
+"""
 
 
 # ---------------------------------------------------------------------------
@@ -70,6 +41,8 @@ each file, (3) the list of Silver Parquet output paths."""
 
 def _inspect_task(input_files: list[str], sttm_path: str) -> dict:
     """Preview Bronze Parquet schemas and STTM cleansing rules. No LLM."""
+    max_columns_per_file = 12
+    max_rules = 150
     sttm_df = pd.read_csv(sttm_path)
     # Normalize STTM column names to expected canonical names so downstream
     # code doesn't KeyError when different CSV variants are used.
@@ -104,23 +77,24 @@ def _inspect_task(input_files: list[str], sttm_path: str) -> dict:
         try:
             df = pd.read_parquet(fp)
             col_info = {}
-            for col in df.columns:
+            for col in df.columns[:max_columns_per_file]:
                 col_info[col] = {
                     "dtype": str(df[col].dtype),
                     "null_count": int(df[col].isnull().sum()),
-                    "sample_values": df[col].dropna().head(3).tolist(),
+                    "sample_values": df[col].dropna().head(1).tolist(),
                 }
             file_summaries.append({
                 "file": os.path.basename(fp),
                 "rows": df.shape[0],
-                "columns": list(df.columns),
+                "columns": list(df.columns[:max_columns_per_file]),
+                "column_count": len(df.columns),
                 "column_info": col_info,
             })
         except Exception as e:
             file_summaries.append({"file": os.path.basename(fp), "error": str(e)})
 
     rules_summary = []
-    for _, row in sttm_df.iterrows():
+    for _, row in sttm_df.head(max_rules).iterrows():
         rules_summary.append({
             "source_table": str(row.get("source_table", "")),
             "source_column": str(row.get("source_column", "")),
@@ -133,7 +107,8 @@ def _inspect_task(input_files: list[str], sttm_path: str) -> dict:
         "files": file_summaries,
         "sttm_rules": rules_summary,
         "total_files": len(input_files),
-        "total_rules": len(rules_summary),
+        "total_rules": len(sttm_df),
+        "rules_preview_count": len(rules_summary),
     }
 
 
@@ -273,19 +248,22 @@ def _apply_silver_rules(input_files: list[str], sttm_path: str, run_id: str) -> 
 
 def _make_silver_tools(input_files: list[str], sttm_path: str, run_id: str):
     """Returns inspect + ingestion tools bound to this run's parameters via closure."""
+    scratchpad: dict = {}
 
     @tool
-    def inspect_task_tool(confirmation: str = "execute") -> str:
+    def inspect_task_tool() -> str:
         """Preview Bronze Parquet input schemas and STTM cleansing rules.
 
         Returns a JSON summary of each Bronze file's column names, dtypes, null counts,
         sample values, and all STTM cleansing rules (null handling, type casting, etc.).
         Call this FIRST to understand what needs to be cleansed and form your plan.
         """
-        return json.dumps(_inspect_task(input_files, sttm_path), default=str)
+        if "inspect" not in scratchpad:
+            scratchpad["inspect"] = _inspect_task(input_files, sttm_path)
+        return json.dumps(scratchpad["inspect"], default=str)
 
     @tool
-    def silver_ingestion_tool(confirmation: str = "execute") -> str:
+    def silver_ingestion_tool() -> str:
         """Execute the full Silver layer cleansing workflow using approved STTM rules.
 
         Reads each Bronze Parquet file, applies null handling, deduplication, type
@@ -293,7 +271,9 @@ def _make_silver_tools(input_files: list[str], sttm_path: str, run_id: str):
         filters to approved columns, and writes Silver Parquet artifacts.
         Returns a JSON list of output file paths.
         """
-        output_paths = _apply_silver_rules(input_files, sttm_path, run_id)
+        if "output_paths" not in scratchpad:
+            scratchpad["output_paths"] = _apply_silver_rules(input_files, sttm_path, run_id)
+        output_paths = scratchpad["output_paths"]
         return json.dumps(output_paths)
 
     return inspect_task_tool, silver_ingestion_tool
@@ -336,19 +316,44 @@ def execute_silver(
         list[str]: Silver Parquet output file paths.
     """
     trace = AgentTrace("silver_agent", run_id)
-    trace.set_input(input_files=input_files, sttm_path=sttm_path)
+    trace.set_input(input_files=input_files, sttm_path=sttm_path, approx_input_tokens=estimate_text_tokens(task_description), input_budget_tokens=1000)
 
     inspect_tool, ingestion_tool = _make_silver_tools(input_files, sttm_path, run_id)
     llm = _make_llm()
 
     print(f"[SILVER] Running autonomous ReAct agent ({LLM_PROVIDER})")
-    agent = create_agent(llm, [inspect_tool, ingestion_tool], system_prompt=SILVER_AGENT_PROMPT)
+    try:
+        # Try using create_react_agent for better tool handling
+        # recursion_limit=1 enforced via invoke config (Silver cleansing one-shot, fail-fast to deterministic)
+        agent = create_react_agent(llm, [inspect_tool, ingestion_tool], prompt=SILVER_AGENT_PROMPT)
+    except Exception as e:
+        print(f"[SILVER] Failed to create ReAct agent; using deterministic fallback: {e}")
+        output_paths = _apply_silver_rules(input_files, sttm_path, run_id)
+        trace.set_error_context(
+            classification=classify_error_type(e),
+            approx_input_tokens=estimate_text_tokens(task_description),
+            input_budget_tokens=1000,
+            failed_generation=extract_failed_generation(e),
+        )
+        trace.set_recovery_path(mode="fallback", reason="agent_creation_failed")
+        trace.set_output(output_paths=output_paths, mode="fallback").complete()
+        return output_paths
 
     try:
-        result = agent.invoke({"messages": [HumanMessage(content=task_description)]})
+        result = invoke_agent_with_retry(agent, {"messages": [HumanMessage(content=task_description)]}, agent_name="SILVER", max_input_tokens=1000)
     except Exception as e:
-        trace.fail(str(e))
-        raise
+        trace.trace["error_classification"] = classify_error_type(e)
+        print(f"[SILVER] LLM blocked/unavailable; switching to deterministic cleansing fallback: {e}")
+        output_paths = _apply_silver_rules(input_files, sttm_path, run_id)
+        trace.set_error_context(
+            classification=classify_error_type(e),
+            approx_input_tokens=estimate_text_tokens(task_description),
+            input_budget_tokens=1000,
+            failed_generation=extract_failed_generation(e),
+        )
+        trace.set_recovery_path(mode="fallback", reason="llm_blocker_or_budget_failure")
+        trace.set_output(output_paths=output_paths, mode="fallback").complete()
+        return output_paths
 
     messages = result.get("messages", [])
     trace.extract_from_messages(messages)
@@ -365,5 +370,9 @@ def execute_silver(
             except (json.JSONDecodeError, ValueError):
                 continue
 
-    trace.set_output(output_paths=output_paths).complete()
+    if not output_paths:
+        print("[SILVER] No output paths parsed from LLM response; running deterministic cleansing fallback")
+        output_paths = _apply_silver_rules(input_files, sttm_path, run_id)
+
+    trace.set_output(output_paths=output_paths, mode="llm").complete()
     return output_paths

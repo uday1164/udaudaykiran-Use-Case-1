@@ -1,0 +1,143 @@
+{
+    "run_id": "242abbda-44ad-4136-acce-7c43473a5650",
+    "layer_name": "bronze",
+    "validated_at": "2026-08-30T18:14:37.862221+00:00",
+    "warn_only": true,
+    "status": "warning",
+    "summary": {
+        "file_count": 3,
+        "files_with_warnings": 1,
+        "total_warnings": 1
+    },
+    "files": [
+        {
+            "file_path": "C:\\Users\\udaudaykiran\\Downloads\\udaudaykiran-Use-Case-1\\data\\bronze_layer\\stores_bronze.parquet",
+            "warnings": [],
+            "row_count": 10,
+            "column_count": 7,
+            "columns": [
+                "store_id",
+                "store_name",
+                "region",
+                "city",
+                "state",
+                "_load_timestamp",
+                "_source_file"
+            ],
+            "dtypes": {
+                "store_id": "str",
+                "store_name": "str",
+                "region": "str",
+                "city": "str",
+                "state": "str",
+                "_load_timestamp": "str",
+                "_source_file": "str"
+            },
+            "null_pct_by_column": {
+                "store_id": 0.0,
+                "store_name": 0.0,
+                "region": 0.0,
+                "city": 0.0,
+                "state": 0.0,
+                "_load_timestamp": 0.0,
+                "_source_file": 0.0
+            },
+            "duplicate_row_count": 0,
+            "is_empty": false,
+            "missing_expected_columns": [],
+            "unexpected_columns": []
+        },
+        {
+            "file_path": "C:\\Users\\udaudaykiran\\Downloads\\udaudaykiran-Use-Case-1\\data\\bronze_layer\\sales_data_bronze.parquet",
+            "warnings": [
+                "Duplicate rows detected : 12"
+            ],
+            "row_count": 186,
+            "column_count": 13,
+            "columns": [
+                "transaction_id",
+                "transaction_date",
+                "store_id",
+                "product_id",
+                "product_name",
+                "category",
+                "quantity",
+                "unit_price",
+                "total_amount",
+                "customer_segment",
+                "payment_method",
+                "_load_timestamp",
+                "_source_file"
+            ],
+            "dtypes": {
+                "transaction_id": "str",
+                "transaction_date": "str",
+                "store_id": "str",
+                "product_id": "str",
+                "product_name": "str",
+                "category": "str",
+                "quantity": "Int64",
+                "unit_price": "float64",
+                "total_amount": "float64",
+                "customer_segment": "str",
+                "payment_method": "str",
+                "_load_timestamp": "str",
+                "_source_file": "str"
+            },
+            "null_pct_by_column": {
+                "transaction_id": 4.3,
+                "transaction_date": 0.0,
+                "store_id": 2.69,
+                "product_id": 0.0,
+                "product_name": 0.0,
+                "category": 0.0,
+                "quantity": 0.0,
+                "unit_price": 0.0,
+                "total_amount": 0.0,
+                "customer_segment": 0.0,
+                "payment_method": 0.0,
+                "_load_timestamp": 0.0,
+                "_source_file": 0.0
+            },
+            "duplicate_row_count": 12,
+            "is_empty": false,
+            "missing_expected_columns": [],
+            "unexpected_columns": []
+        },
+        {
+            "file_path": "C:\\Users\\udaudaykiran\\Downloads\\udaudaykiran-Use-Case-1\\data\\bronze_layer\\products_bronze.parquet",
+            "warnings": [],
+            "row_count": 20,
+            "column_count": 6,
+            "columns": [
+                "product_id",
+                "product_name",
+                "category",
+                "standard_price",
+                "_load_timestamp",
+                "_source_file"
+            ],
+            "dtypes": {
+                "product_id": "str",
+                "product_name": "str",
+                "category": "str",
+                "standard_price": "float64",
+                "_load_timestamp": "str",
+                "_source_file": "str"
+            },
+            "null_pct_by_column": {
+                "product_id": 0.0,
+                "product_name": 0.0,
+                "category": 0.0,
+                "standard_price": 0.0,
+                "_load_timestamp": 0.0,
+                "_source_file": 0.0
+            },
+            "duplicate_row_count": 0,
+            "is_empty": false,
+            "missing_expected_columns": [],
+            "unexpected_columns": []
+        }
+    ],
+    "report_path": ""
+}

@@ -1,0 +1,9 @@
+source_schema,source_table,source_column,target_schema,target_table,target_column,transformation_type,transformation_logic
+bronze,stores_bronze.parquet,,silver,stores_silver,pk_stores_bronze_silver_id,Indirect,Auto-generated sequential surrogate primary key starting from 1
+bronze,stores_bronze.parquet,store_id,silver,stores_silver,store_id,Direct,Type cast to text for id column; strip whitespace
+bronze,stores_bronze.parquet,store_name,silver,stores_silver,store_name,Direct,Convert to text; strip whitespace
+bronze,stores_bronze.parquet,region,silver,stores_silver,region,Direct,Convert to text; strip whitespace
+bronze,stores_bronze.parquet,city,silver,stores_silver,city,Direct,Convert to text; strip whitespace
+bronze,stores_bronze.parquet,state,silver,stores_silver,state,Direct,Convert to text; strip whitespace
+bronze,stores_bronze.parquet,_load_timestamp,silver,stores_silver,_load_timestamp,Direct,Date standardisation to YYYY-MM-DD
+bronze,stores_bronze.parquet,_source_file,silver,stores_silver,_source_file,Direct,Convert to text; strip whitespace

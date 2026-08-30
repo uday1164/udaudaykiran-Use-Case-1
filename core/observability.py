@@ -68,6 +68,16 @@ class AgentTrace:
         self.trace["output"] = {k: v for k, v in kwargs.items()}
         return self
 
+    def set_error_context(self, **kwargs) -> "AgentTrace":
+        """Record structured error context for failures or fallback decisions."""
+        self.trace["error_context"] = {k: v for k, v in kwargs.items()}
+        return self
+
+    def set_recovery_path(self, **kwargs) -> "AgentTrace":
+        """Record how the agent recovered after a failure or blocker."""
+        self.trace["recovery_path"] = {k: v for k, v in kwargs.items()}
+        return self
+
     def extract_from_messages(self, messages: list) -> "AgentTrace":
         """Parse LangGraph message history to extract plan, tool calls, and reasoning.
 
@@ -172,5 +182,7 @@ class AgentTrace:
             f"[OBSERVE][{self.agent_name}] status={self.trace['status']} "
             f"duration={d}s tools_called={tools_called} reasoning_steps={steps}"
         )
+        if self.trace.get("error_context", {}).get("classification"):
+            print(f"[OBSERVE][{self.agent_name}] error_class={self.trace['error_context']['classification']}")
         if self.trace.get("plan"):
             print(f"[OBSERVE][{self.agent_name}] plan_preview={self.trace['plan'][:150]}")

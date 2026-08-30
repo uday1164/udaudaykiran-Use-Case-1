@@ -1,0 +1,8 @@
+source_schema,source_table,source_column,target_schema,target_table,target_column,transformation_type,transformation_logic
+raw,stores,store_id,bronze,stores_bronze,store_id,Direct,Direct pass-through from source to Bronze layer
+raw,stores,store_name,bronze,stores_bronze,store_name,Direct,Direct pass-through from source to Bronze layer
+raw,stores,region,bronze,stores_bronze,region,Direct,Direct pass-through from source to Bronze layer
+raw,stores,city,bronze,stores_bronze,city,Direct,Direct pass-through from source to Bronze layer
+raw,stores,state,bronze,stores_bronze,state,Direct,Direct pass-through from source to Bronze layer
+raw,stores,,bronze,stores_bronze,_load_timestamp,Indirect,Current UTC timestamp injected at load time
+raw,stores,,bronze,stores_bronze,_source_file,Indirect,Source file path injected at load time

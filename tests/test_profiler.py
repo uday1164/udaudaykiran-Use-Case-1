@@ -8,8 +8,20 @@ import pandas as pd
 import pytest
 from unittest.mock import patch, MagicMock
 
+from agents.profiler import _build_profiler_task, _build_profiler_min_task
+
 
 class TestProfiler:
+    def test_build_profiler_task_stays_under_budget_and_avoids_risky_output_phrase(self):
+        long_goal = "Profile this dataset carefully. " * 400
+        task = _build_profiler_task(long_goal, ["/tmp/alpha.csv", "/tmp/beta.csv"], max_input_tokens=200)
+
+        assert len(task) <= 200 * 4
+        assert "Return JSON" not in task
+        assert "final assistant message must be a JSON object" in task
+        assert "alpha.csv" in task
+        assert "beta.csv" in task
+
     def test_profile_dataset_creates_json(self, tmp_path, monkeypatch):
         monkeypatch.setattr("agents.profiler.PROFILES_DIR", tmp_path)
 
@@ -18,22 +30,27 @@ class TestProfiler:
         df = pd.DataFrame({"id": [1, 2, 3], "name": ["a", "b", "c"], "value": [10.0, 20.0, None]})
         df.to_csv(csv_path, index=False)
 
-        # Mock LLM call
-        mock_response = MagicMock()
-        mock_response.content = '{"id": "unique identifier", "name": "entity name", "value": "numeric measurement"}'
+        mock_agent = MagicMock()
+        mock_agent.invoke.return_value = {
+            "messages": [
+                MagicMock(content=json.dumps({"files": [str(csv_path)], "datasets": {}})),
+                MagicMock(content='{"semantic_meanings": {}, "join_keys": [], "quality_notes": ["ok"]}'),
+            ]
+        }
 
-        with patch("agents.profiler.ChatGoogleGenerativeAI") as mock_llm_class:
-            mock_llm_class.return_value.invoke.return_value = mock_response
-
+        with patch("agents.profiler._make_llm", return_value=MagicMock()), \
+             patch("agents.profiler.create_react_agent", return_value=mock_agent):
             from agents.profiler import profile_dataset
-            result = profile_dataset(str(csv_path), "test-run")
+            result = profile_dataset(str(csv_path), "test-run", "Profile test dataset")
 
         assert Path(result).exists()
         with open(result) as f:
             profile = json.load(f)
-        assert profile["shape"]["rows"] == 3
-        assert profile["shape"]["columns"] == 3
-        assert "id" in profile["columns"]
+        assert "datasets" in profile
+        dataset = profile["datasets"]["test"]
+        assert dataset["shape"]["rows"] == 3
+        assert dataset["shape"]["columns"] == 3
+        assert "id" in dataset["columns"]
 
     def test_profile_multiple_datasets(self, tmp_path, monkeypatch):
         monkeypatch.setattr("agents.profiler.PROFILES_DIR", tmp_path)
@@ -44,16 +61,31 @@ class TestProfiler:
         pd.DataFrame({"product_id": [1, 2], "revenue": [100, 200]}).to_csv(csv1, index=False)
         pd.DataFrame({"product_id": [1, 2], "name": ["A", "B"]}).to_csv(csv2, index=False)
 
-        mock_response = MagicMock()
-        mock_response.content = '```json\n{"semantic_meanings": {}, "join_keys": ["product_id"], "quality_notes": "ok"}\n```'
+        mock_agent = MagicMock()
+        mock_agent.invoke.return_value = {
+            "messages": [
+                MagicMock(content=json.dumps({"files": [str(csv1), str(csv2)], "datasets": {}})),
+                MagicMock(content='```json\n{"semantic_meanings": {}, "join_keys": ["product_id"], "quality_notes": ["ok"]}\n```'),
+            ]
+        }
 
-        with patch("agents.profiler.ChatGoogleGenerativeAI") as mock_llm_class:
-            mock_llm_class.return_value.invoke.return_value = mock_response
-
+        with patch("agents.profiler._make_llm", return_value=MagicMock()), \
+             patch("agents.profiler.create_react_agent", return_value=mock_agent):
             from agents.profiler import profile_multiple_datasets
-            result = profile_multiple_datasets([str(csv1), str(csv2)], "test-run")
+            result = profile_multiple_datasets([str(csv1), str(csv2)], "test-run", "Profile multiple datasets")
 
         assert Path(result).exists()
         with open(result) as f:
             profile = json.load(f)
         assert len(profile["datasets"]) == 2
+
+    def test_build_profiler_min_task_is_compact(self):
+        task = _build_profiler_min_task(
+            ["/tmp/alpha.csv", "/tmp/beta.csv", "/tmp/gamma.csv"],
+            max_input_tokens=80,
+        )
+
+        assert len(task) <= 80 * 4
+        assert "alpha.csv" in task
+        assert "beta.csv" in task
+        assert "semantic_meanings" in task

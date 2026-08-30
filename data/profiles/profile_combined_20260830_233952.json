@@ -1,0 +1,77 @@
+{
+  "files": [
+    "C:\\Users\\udaudaykiran\\Downloads\\udaudaykiran-Use-Case-1\\data\\landing\\stores.csv"
+  ],
+  "datasets": {
+    "stores": {
+      "file": "C:\\Users\\udaudaykiran\\Downloads\\udaudaykiran-Use-Case-1\\data\\landing\\stores.csv",
+      "shape": {
+        "rows": 10,
+        "columns": 5
+      },
+      "columns": {
+        "store_id": {
+          "dtype": "str",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "unique_count": 10,
+          "sample_values": [
+            "S01"
+          ]
+        },
+        "store_name": {
+          "dtype": "str",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "unique_count": 10,
+          "sample_values": [
+            "Downtown Flagship"
+          ]
+        },
+        "region": {
+          "dtype": "str",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "unique_count": 4,
+          "sample_values": [
+            "Northeast"
+          ]
+        },
+        "city": {
+          "dtype": "str",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "unique_count": 10,
+          "sample_values": [
+            "New York"
+          ]
+        },
+        "state": {
+          "dtype": "str",
+          "null_count": 0,
+          "null_pct": 0.0,
+          "unique_count": 9,
+          "sample_values": [
+            "NY"
+          ]
+        }
+      }
+    }
+  },
+  "analysis": {
+    "semantic_meanings": {
+      "stores": {
+        "store_id": "Identifier column",
+        "store_name": "Categorical/text attribute",
+        "region": "Categorical/text attribute",
+        "city": "Categorical/text attribute",
+        "state": "Categorical/text attribute"
+      }
+    },
+    "join_keys": [],
+    "quality_notes": [
+      "No major deterministic quality issues detected in profiling fallback."
+    ]
+  },
+  "lov_report_path": "C:\\Users\\udaudaykiran\\Downloads\\udaudaykiran-Use-Case-1\\data\\lovs\\lov_report_70fd7909-9b2d-4fb0-9c66-6ab7a523ea61.json"
+}

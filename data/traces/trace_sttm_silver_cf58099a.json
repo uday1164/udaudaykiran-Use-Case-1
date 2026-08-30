@@ -1,0 +1,21 @@
+[
+  {
+    "agent": "sttm_silver",
+    "run_id": "cf58099a-5dee-4291-a3c6-44cae800b373",
+    "started_at": "2026-05-18T14:10:22.821246+00:00",
+    "input": {
+      "bronze_paths": [
+        "C:\\Users\\niksaini\\Documents\\Firm-Initiatives\\Accelerate-with-AI\\MedallionWorkflow\\version_4\\data\\bronze_layer\\products_bronze.parquet",
+        "C:\\Users\\niksaini\\Documents\\Firm-Initiatives\\Accelerate-with-AI\\MedallionWorkflow\\version_4\\data\\bronze_layer\\sales_data_bronze.parquet",
+        "C:\\Users\\niksaini\\Documents\\Firm-Initiatives\\Accelerate-with-AI\\MedallionWorkflow\\version_4\\data\\bronze_layer\\stores_bronze.parquet"
+      ]
+    },
+    "plan": "",
+    "tool_calls": [],
+    "reasoning_steps": [],
+    "output": {},
+    "duration_seconds": 24.564,
+    "status": "failed",
+    "error": "Error code: 429 - {'error': {'message': 'Rate limit reached for model `llama-3.3-70b-versatile` in organization `org_01kr3smy46fnfv7easj2srjy3g` service tier `on_demand` on tokens per minute (TPM): Limit 12000, Used 10366, Requested 2664. Please try again in 5.149999999s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'tokens', 'code': 'rate_limit_exceeded'}}"
+  }
+]

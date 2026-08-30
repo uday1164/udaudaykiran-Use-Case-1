@@ -1,0 +1,22 @@
+[
+  {
+    "agent": "supervisor_phase1",
+    "run_id": "97b26341-96aa-4184-8d12-e08ef2c294da",
+    "started_at": "2026-05-15T15:20:06.111643+00:00",
+    "input": {
+      "phase": "phase1",
+      "goal": "Phase 1 goal for run_id='97b26341-96aa-4184-8d12-e08ef2c294da'.\n\nBusiness intent: please provide me total sales\nUploaded files: ['C:\\\\Users\\\\JHARSHARMA\\\\Downloads\\\\version_3\\\\data\\\\landing\\\\sales_data.csv', 'C:\\\\Users\\\\JHARSHARMA\\\\Downloads\\\\version_3\\\\data\\\\landing\\\\products.csv', 'C:\\\\Users\\\\JHARSHARMA\\\\Downloads\\\\version_3\\\\data\\\\landing\\\\stores.csv']\n\nYou need to accomplish two things in this phase:\n1. Profile the uploaded raw CSV files to understand their structure, column semantics, data quality, and potential join keys across datasets.\n2. Use that profile to generate a complete Bronze STTM CSV that covers every column with ingestion rules (renaming, type casting, metadata injection).\n\nThink about what the business intent implies about which columns matter most. Plan which tools to call and in what order. Verify each output before proceeding.",
+      "tools_available": [
+        "profiler_agent_tool",
+        "sttm_agent_tool"
+      ]
+    },
+    "plan": "",
+    "tool_calls": [],
+    "reasoning_steps": [],
+    "output": {},
+    "duration_seconds": 1.117,
+    "status": "failed",
+    "error": "Error code: 429 - {'error': {'message': 'Rate limit reached for model `llama-3.3-70b-versatile` in organization `org_01kr3smy46fnfv7easj2srjy3g` service tier `on_demand` on tokens per day (TPD): Limit 100000, Used 99119, Requested 1600. Please try again in 10m21.216s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'tokens', 'code': 'rate_limit_exceeded'}}"
+  }
+]

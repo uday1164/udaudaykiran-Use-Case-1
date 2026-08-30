@@ -1,0 +1,22 @@
+[
+  {
+    "agent": "supervisor_phase1",
+    "run_id": "aae54422-cb49-43a4-b959-a5a99f442f8d",
+    "started_at": "2026-05-18T13:54:05.827258+00:00",
+    "input": {
+      "phase": "phase1",
+      "goal": "Phase 1 goal for run_id='aae54422-cb49-43a4-b959-a5a99f442f8d'.\n\nUploaded files: ['C:\\\\Users\\\\niksaini\\\\Documents\\\\Firm-Initiatives\\\\Accelerate-with-AI\\\\MedallionWorkflow\\\\version_4\\\\data\\\\landing\\\\products.csv', 'C:\\\\Users\\\\niksaini\\\\Documents\\\\Firm-Initiatives\\\\Accelerate-with-AI\\\\MedallionWorkflow\\\\version_4\\\\data\\\\landing\\\\sales_data.csv', 'C:\\\\Users\\\\niksaini\\\\Documents\\\\Firm-Initiatives\\\\Accelerate-with-AI\\\\MedallionWorkflow\\\\version_4\\\\data\\\\landing\\\\stores.csv']\n\nYou need to accomplish two things in this phase:\n1. Profile the uploaded raw CSV files to understand their structure, column semantics, data quality, and potential join keys across datasets.\n2. Use that profile to generate a complete Bronze STTM CSV that covers every column with ingestion rules (renaming, type casting, metadata injection).\n\nBronze is intent-agnostic \u2014 map every column mechanically. Plan which tools to call and in what order. Verify each output before proceeding.",
+      "tools_available": [
+        "profiler_agent_tool",
+        "sttm_agent_tool"
+      ]
+    },
+    "plan": "",
+    "tool_calls": [],
+    "reasoning_steps": [],
+    "output": {},
+    "duration_seconds": 135.37,
+    "status": "failed",
+    "error": "Error code: 429 - {'error': {'message': 'Rate limit reached for model `llama-3.3-70b-versatile` in organization `org_01kqyrt4ybfvm9e5q3qgtxxh0w` service tier `on_demand` on tokens per day (TPD): Limit 100000, Used 97708, Requested 3427. Please try again in 16m20.64s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing', 'type': 'tokens', 'code': 'rate_limit_exceeded'}}"
+  }
+]
